@@ -20,7 +20,25 @@ import pkg_resources
 
 pd.options.mode.chained_assignment = "raise"
 
+
 def set_initial_trasnform_bounds(pardf):
+    """
+    Set initial upper and lower bound and transform of parameter dataframe.
+
+    Parameters
+    ----------
+    pardf : pandas dataframe
+        parameter dataframe with columns ['value', 'line', 'col', 'file']
+        and an index with the automatically created parameter name.
+
+    Returns
+    -------
+    pardf : pandas dataframe
+        parameter dataframe with columns ['value', 'line', 'col', 'file',
+                                          'lower', 'upper', 'transform']
+        and an index with the automatically created parameter name.
+
+    """
     # set initial transform and bounds
     pardf['transform'] = 'none'  # transform = none, log, tied, fixed
     pardf['tied_to'] = ''
@@ -34,6 +52,7 @@ def set_initial_trasnform_bounds(pardf):
     pardf.loc[mask, 'lower'] = 1.5 * pardf['value']
     pardf.loc[mask, 'upper'] = 0.5 * pardf['value']
     return pardf
+
 
 def extract_observations_from_file(stat_file, program='OSTRICH'):
     """
@@ -221,7 +240,7 @@ def name_par_from_headers(parInidf):
     # name parameters based on header columns
     name_cols = ['header0', 'header1', 'header2', 'header3', 'header4',
                  'header5', 'name']
-    
+
     # if subarea names are numbers --> convert to string
     mask = pd.to_numeric(parInidf['header5'], errors='coerce').notnull()
     parInidf.loc[mask, 'header5'] = parInidf.loc[mask, 'header5'].astype(float).astype(int).astype(str)
@@ -849,7 +868,7 @@ class ExtractParameters():
                   'UZSoilProfileProp': '',
                   'TIME_SERIES_FILE': 'tsfile',
                   'ROOT_DEPTH': 'RD'}
-    
+
 
     def __init__(self, parInidf, proc_active, model_types, par_from, pth):
         self.parInidf = parInidf
@@ -876,32 +895,30 @@ class ExtractParameters():
         # clean up
         par2 = par2.replace(self.translator)
         mask = (par2['name'].str.len() > 3) & (par2['name'].str.isupper())
-        par2.loc[mask, 'name'] = par2.loc[mask, 'name'].apply(camelize)     
-        
+        par2.loc[mask, 'name'] = par2.loc[mask, 'name'].apply(camelize)
+
         # extract parameter files
-        mask = ((par2['name'] == 'FileName') | 
+        mask = ((par2['name'] == 'FileName') |
                 (par2['name'] == 'ItemNumbers'))
         if mask.sum() > 0:
             # filtering
             par_files_ = par2.loc[mask].copy()
             self.par_files_ = par_files_
-            
+
             # cleanup
             headers = ['header0', 'header1', 'header2', 'header3', 'header4']
             par_files = par_files_.groupby(headers).aggregate({'value': 'first'}).reset_index()
             par_files['item'] = par_files_.groupby(headers).aggregate({'value': 'last'})['value'].tolist()
-            
+
             # # create parameter name
             par_files = par_files.replace('', np.nan)
             par_files['par_nme'] = par_files[headers].apply(lambda x: x.str.cat(sep='_'), axis=1)
             par_files['par_nme'] = par_files['par_nme'].str.replace(" ", "", regex=True)
-            
+
             # make relevant columns
             par_files['file'] = ['.\\' + os.path.normpath(os.path.join(self.pth, file)) for file in par_files['value'].to_list()]
             par_files.index = par_files['par_nme']
             par_files['method'] = 'uniform_factor'
-            # par_files[['transform', 'value', 'lower', 'upper']] = 'none', 0.5, 1, 1.5
-            # par_files = par_files[['file', 'item', 'method', 'value', 'lower', 'upper', 'transform']]
             par_files = par_files[['file', 'item', 'method', 'value']]
             self.par_files = par_files
         else:  # no parameter file --> empty dataframe
@@ -912,12 +929,12 @@ class ExtractParameters():
         # clean up of parameter df
         par2 = par2.loc[~mask].copy()
         par = name_par_from_headers(par2)
-        
+
         par = set_initial_trasnform_bounds(par)
-        
+
         # order of columns
         par = par[['value', 'lower', 'upper', 'transform', 'tied_to',
-                    'tied_factor', 'line', 'col', 'file']]
+                   'tied_factor', 'line', 'col', 'file']]
         self.par = par
 
     def extract_lu_par(self):
@@ -1001,21 +1018,25 @@ class ExtractParameters():
                 self.translator.update(veg_translator)
 
                 # Type 1 = Constant
-                lu = remove_unused_par(lu, ['FIXED_VALUE_LAI', 'FIXED_VALUE_RD'], 'TYPE',
-                                       'header5', 1)
+                lu = remove_unused_par(lu, ['FIXED_VALUE_LAI',
+                                            'FIXED_VALUE_RD'],
+                                       'TYPE', 'header5', 1)
                 # Type 2 = Time series file
-                lu = remove_unused_par(lu, ['FILE_NAME', 'ITEM_NUMBERS'], 'TYPE',
-                                       'header5', 2)
-                local_trans = {'TIME_SERIES_FILE_1': 'LAI_ts', 'TIME_SERIES_FILE_2': 'RD_ts'}
+                lu = remove_unused_par(lu, ['FILE_NAME', 'ITEM_NUMBERS'],
+                                       'TYPE', 'header5', 2)
+                local_trans = {'TIME_SERIES_FILE_1': 'LAI_ts',
+                               'TIME_SERIES_FILE_2': 'RD_ts'}
                 lu['header3'] = lu['header3'].replace(local_trans)
 
                 # Type 3 = Vegetation proporty file
-                lu = remove_unused_par(lu, ['FILE_NAME', 'STAGE_NAMES'], 'TYPE',
-                                       'header5', 3)
+                lu = remove_unused_par(lu, ['FILE_NAME', 'STAGE_NAMES'],
+                                       'TYPE', 'header5', 3)
 
                 vpf_file = lu.loc[(lu['name'] == 'FILE_NAME') &
-                                  (lu['header3'] == 'VEG_PROP_FILES'), 'value'].to_list()[0]  # takes single vpf file!!!
-                type3_veg = lu.loc[lu['name'] == 'STAGE_NAMES', 'value'].to_list()
+                                  (lu['header3'] == 'VEG_PROP_FILES'),
+                                  'value'].to_list()[0]  # takes single vpf file!!!
+                type3_veg = lu.loc[lu['name'] == 'STAGE_NAMES',
+                                   'value'].to_list()
                 type3_veg = list(set(type3_veg))
                 type3_header5 = lu.loc[lu['name'] ==
                                        'STAGE_NAMES', 'header5'].to_list()
@@ -1035,10 +1056,6 @@ class ExtractParameters():
             process_header = 'header2'  # header that contain name of parameter
 
             # Veg Distribution type
-            # # 1 = Uniform keep fixed value, 2 = Subareas, 3 = Fully distributed
-            # veg_dist_type = lu.loc[lu.name == 'DistributionType',
-            #                        'value'].tolist()[1:]
-
             # Veg dist type == 1 Uniform, time varying
             lu = remove_unused_par(lu, ['FILE_NAME', 'ITEM_NUMBERS'], 'TYPE',
                                    process_header, 2)
@@ -1116,7 +1133,8 @@ class ExtractParameters():
 
         """
         if self.model_types['OL'] == 1:  # subcatchment based
-            ov = self.parInidf.loc[self.parInidf['header0'] == 'OverlandSubcatchment'].copy()
+            ov = self.parInidf.loc[self.parInidf['header0'] ==
+                                   'OverlandSubcatchment'].copy()
             if len(ov) == 0:
                 pass
             ov = name_after(ov, 'Name')
@@ -1126,7 +1144,8 @@ class ExtractParameters():
                         'DetentionStorage', 'SlopeLength']
             ov = ov.loc[ov['name'].isin(keep_par)]
         elif self.model_types['OL'] == 0:  # finite difference
-            ov = self.parInidf.loc[self.parInidf['header0'] == 'Overland'].copy()
+            ov = self.parInidf.loc[self.parInidf['header0'] ==
+                                   'Overland'].copy()
 
             file_header = 'header2'   # header that contain type of file
             process_header = 'header1'  # header that contain name of parameter
@@ -1277,7 +1296,8 @@ class ExtractParameters():
 
         # Finite difference
         elif self.model_types['SZ'] == 0:
-            sz = self.parInidf.loc[self.parInidf['header0'] == 'SaturatedZone'].copy()
+            sz = self.parInidf.loc[self.parInidf['header0'] ==
+                                   'SaturatedZone'].copy()
             drainage = bool(sz.loc[sz.name == 'Drainage', 'value'].tolist()[0])
 
             if drainage:
@@ -1339,14 +1359,15 @@ class ExtractParameters():
                 sz_dr, ['FixedValue'], 'Type', process_header, 0)
 
             # Type 1 = Uniform spatial distribution
-            sz_dr = remove_unused_par(
-                sz_dr, ['FILE_NAME', 'ITEM_NUMBERS'], 'Type', process_header, 1)
+            sz_dr = remove_unused_par(sz_dr, ['FILE_NAME', 'ITEM_NUMBERS'],
+                                      'Type', process_header, 1)
 
             # remove xyz files
             sz_dr = sz_dr[sz_dr['header3'] != 'XYZ_FILE']
 
             # remove draincode and distributed option code
-            sz_dr = sz_dr[~sz_dr['header2'].isin(['DrainCode', 'DistributedOptionCode'])]
+            sz_dr = sz_dr[~sz_dr['header2'].isin(['DrainCode',
+                                                  'DistributedOptionCode'])]
 
             # Combine
             sz = pd.concat([sz, sz_dr])
@@ -1377,8 +1398,8 @@ class ExtractParameters():
         riv = self.parInidf.loc[self.parInidf['header0'] == 'River'].copy()
 
         # getting river file name
-        riv_file = riv.loc[riv['name'] == 'Filename']['value'].to_string().split()[
-            1]
+        riv_file = riv.loc[riv['name'] ==
+                           'Filename']['value'].to_string().split()[1]
 
         extension = os.path.splitext(riv_file)[1]
 
@@ -1472,7 +1493,7 @@ class Setup:
         parInidf['file'] = os.path.join(self.pth, mod_nme) + '.she'
         extpar = ExtractParameters(parInidf, proc_active, model_types,
                                    par_from, pth)
-        self.par =  extpar.par
+        self.par = extpar.par
         self.par_files = extpar.par_files
 
         # get files
@@ -1485,14 +1506,37 @@ class Setup:
         resultsIni = all_df.loc[all_df['header0'].isin(h0_results)].copy()
         self.results = self.extract_obs_vs_sim(resultsIni)
 
-    
     def get_extra_dir_files(self, all_df):
-        filedf = all_df[((all_df['name'].str.lower() == 'file_name') & (all_df['value'].str.len() > 0))|
-                      ((all_df['name'].str.lower() == 'filename') & (all_df['value'].str.len() > 0))].copy()
-          
+        """
+        Get extra directories and files for input file.
+
+        Based on the extracted dataframe from the Mike She file (all_df),
+        all subdirectories where files are located that the *.she file depends
+        on are recorded. If file are located in the current directory they are
+        added to extra_files
+
+        Parameters
+        ----------
+        all_df : pandas dataframe
+            Dataframe with columns ['header0', 'header1', 'header2', 'header3',
+                                    'header4','header5',
+                                    'name', 'value', 'line', 'col']
+            extracted with the table_from_file() function.
+
+        Returns
+        -------
+        Extra directories and extra files
+
+        """
+        filedf = all_df[((all_df['name'].str.lower() == 'file_name') &
+                         (all_df['value'].str.len() > 0)) |
+                        ((all_df['name'].str.lower() == 'filename') &
+                         (all_df['value'].str.len() > 0))].copy()
+
         # ori_paths = filedf['value'].str.lower().str.split('\\').tolist()
         ori_paths = filedf['value'].str.lower().tolist()
-        ori_paths = ['.\\' + os.path.normpath(os.path.join(self.pth, ori)) for ori in ori_paths]
+        ori_paths = ['.\\' + os.path.normpath(os.path.join(self.pth, ori))
+                     for ori in ori_paths]
 
         if self.pth != '.\\':
             paths = [path for path in ori_paths if self.pth not in path]
@@ -1501,18 +1545,19 @@ class Setup:
             directories.extend(paths)
         elif self.pth == '.\\':
             split = [path.split('\\') for path in ori_paths]
-            length = [len(p) for p in split]                  
+            length = [len(p) for p in split]
             # remove file name from path
-            paths = ['\\'.join(path.split('\\')[:2]) for i, path in enumerate(ori_paths) if length[i] > 2]
+            paths = ['\\'.join(path.split('\\')[:2]) for i, path in
+                     enumerate(ori_paths) if length[i] > 2]
             # extract unique paths
             directories = [''.join(list(x)) for x in set(tuple(x) for x in paths)]
             # does not support files that are not in same directory or below
             if '.\..' in directories: directories.remove('.\..')
             # extra files are those placed in same directory as *.she file
-            extra_files = ['\\'.join(path.split('\\')[:2]) for i, path in enumerate(ori_paths) if length[i] == 2]
+            extra_files = ['\\'.join(path.split('\\')[:2]) for i, path in
+                           enumerate(ori_paths) if length[i] == 2]
             self.extra_files = list(set(extra_files))
         self.directories = list(set(directories))
-
 
     def write_parameter_array_factor_file(self):
         """
@@ -1539,20 +1584,19 @@ class Setup:
         sep = '\t'
         # value has to be the last column for the template script t
         df = pd.DataFrame(columns=['file', 'item', 'method', 'value'])
-        
+
         # Parameterization method: Uniform factor
         mask = par_files['method'] == 'uniform_factor'
         df[['file', 'item']] = par_files.loc[mask, ['file', 'item']]
         df['value'] = 1
         df['method'] = 'uniform_factor'
-        # df['name'] = ['_'.join(nme.split('_')[:-1]) +
-        #                '_factor' for nme in par_files.loc[mask].index.to_list()]
+
         # Make a copy of the file that we do not touch. Only for reading.
         for file in par_files.loc[mask, 'file']:
             filename, file_extension = os.path.splitext(file)
             orifile = filename + '_ori' + file_extension
             shutil.copy(file, orifile)
-        
+
         # Parameterization method: Class value
         mask = par_files['method'] == 'class_value'
         for name, row in par_files.loc[mask].iterrows():
@@ -1561,11 +1605,11 @@ class Setup:
             values = np.unique(ds.values).tolist()
             names = [name + '{:02d}'.format(i) for i in range(len(values))]
             new_df = pd.DataFrame({'value': values,
-                                    'file': [row['file']]*len(values),
-                                    'item': [row['item']]*len(values),
-                                    'method': ['class_value']*len(values)},
+                                   'file': [row['file']]*len(values),
+                                   'item': [row['item']]*len(values),
+                                   'method': ['class_value']*len(values)},
                                   index=names)
-            
+
             df = pd.concat([df, new_df])
             # saving as array that ca be read by script
             tpl = np.empty(ds.values.shape, dtype=object)
@@ -1593,9 +1637,28 @@ class Setup:
         return par
 
     def write_parameter_array_update_script(self):
+        """
+        Write script that updates the array parameters.
+
+        Copies the script from the package directory. This script will be used
+        in the forward model to update array with the sampled factor
+        parameters. Arrays are updated based on the information in
+        array_factor_fname. Available methods are uniform_factor and
+        class_value.
+        In uniform_factor the value is multiplied on the file/item pair.
+        In class_value a template file has been created to show the location of
+        each of the classes in the array. This array is loaded to update to
+        new values specified in array_factor_fname.
+
+        Returns
+        -------
+        None.
+
+        """
         # loading script from package folder
-        DATA_PATH = pkg_resources.resource_filename('mikecalsetup', 'parameter_array_update.py')
-        with open(DATA_PATH, 'r') as f:
+        package_path = pkg_resources.resource_filename('mikecalsetup',
+                                                       'parameter_array_update.py')
+        with open(package_path, 'r') as f:
             txt = f.read()
         f.close()
         # saving script to current folder
@@ -1689,70 +1752,56 @@ class Setup:
         None.
 
         """
-        ind = " " * 4  # indentation
+        # loading script from package folder
+        package_path = pkg_resources.resource_filename('mikecalsetup',
+                                                       self.statscripts[0])
+        with open(package_path, 'r') as f:
+            txt = f.read()
+        f.close()
 
-        f = open(self.statscripts[0], mode='w')
-        f.write('import mikeio' + '\n')
-        f.write('import numpy as np' + '\n')
-        f.write('import pandas as pd' + '\n')
-        f.write('import mikecalsetup.stats_def as stats_def' + '\n' + '\n')
-
-        f.write('df = pd.read_csv("sim_vs_obs.csv")' + '\n')
-        f.write('sep = "\\t"' + '\n')
-        f.write('k = 0' + '\n')
-        f.write('f = open("'+self.stat_file+'", mode="w")' + '\n' + '\n')
-
-        f.write('for i, row in df.iterrows():' + '\n')
-        f.write(ind + '# load sim discharge' + '\n')
-        f.write(
-            ind + 'sim_df = mikeio.read(row["sim_file"]).to_dataframe()' + '\n' + '\n')
-
-        f.write(ind + '# load obs discharge' + '\n')
-        f.write(
-            ind + 'load = mikeio.read(row["obs_file"])[row["obs_item"]-1]' + '\n')
-        f.write(ind + 'dis = pd.DataFrame(data=load.values, index=load.time)' + '\n')
-        f.write(
-            ind + 'dis.rename(columns={0: "obs"}, inplace=True)' + '\n' + '\n')
-
-        f.write(ind + '# combine by interpolating sim to obs index' + '\n')
-        f.write(
-            ind + 'dis["sim"] = np.interp(dis.index, sim_df.index, sim_df[str(row["sim_item"])], left=np.nan, right=np.nan)' + '\n')
-        f.write(ind + 'dis.dropna(axis=0, inplace=True)' + '\n' + '\n')
-
-        f.write(
-            ind + '# if len of dis is 0 no observations in sim period --> drop from further eval' + '\n')
-        f.write(ind + 'if len(dis) == 0:' + '\n' + ind*2 +
-                'df = df.drop(i)' + '\n' + ind*2 + 'k = 1' + '\n')
-        f.write(ind + 'else:' + '\n')
-
-        f.write(
-            ind*2 + 'y_true, y_pred = np.array(dis["obs"]), np.array(dis["sim"])' + '\n' + '\n')
-        f.write(ind*2 + '# stats to calculate specified in df' + '\n')
-        f.write(ind*2 + 'stats = row.stats.replace(" ", "").split(",")' + '\n' + '\n')
-        f.write(
-            ind*2 + '# loop through specified stats, calculate and write to file' + '\n')
-        f.write(ind*2 + 'for i, stat in enumerate(stats):' + '\n')
-        f.write(
-            ind*3 + 'value = eval("stats_def.calc_"+stat+"(y_true, y_pred)")' + '\n')
-        f.write(
-            ind*3 + 'name = stat + "_" + row["type"] + str(row["name"])' + '\n')
-        f.write(
-            ind*3 + 'string = name + sep + "{:.4f}".format(value) + "\\n"' + '\n')
-        f.write(ind*3 + 'f.write(string)' + '\n')
-        f.write('f.close()' + '\n' + '\n')
-        f.write('if k == 1:  # if some stations dropped --> save new' + '\n')
-        f.write(ind + 'df.to_csv("sim_vs_obs.csv")' + '\n')
-
+        # saving script to current folder
+        with open(self.statscripts[0], 'w') as f:
+            f.write(txt)
         f.close()
 
     def write_ost_file(self, ost_par, ost_tied, ost_int, ost_obs):
+        """
+        Write Ostrich input file ostin.
+
+        Parameters
+        ----------
+        ost_par : pandas dataframe
+            dataframe with parameters in the format of Real-valued Parameters
+            for ostin file. Section 2.7 in Ostrich documentation. This table is
+            specfied between BeginParams and EndParams in the OstIn file.
+        ost_tied : pandas dataframe
+            dataframe with parameters in the format of Tied Parameters for
+            ostin file. Section 2.10 in Ostrich documentation. This table is
+            specfied between BeginTiedParams and EndTiedParams in the
+            OstIn file.
+        ost_int : pandas dataframe
+            dataframe with parameters in the format of Integer Parameters for
+            ostin file. Section 2.8 in Ostrich documentation. This table is
+            specfied between BeginIntegerParams and EndIntegerParams in
+            the OstIn file.
+        ost_obs : pandas dataframe
+            Observations section (Ostrich manual section 2.14) for Ostrich
+            input file with columns
+            <name><value><wgt><file><sep><key><line><col><tok><aug><grp>
+
+        Returns
+        -------
+        None.
+
+        """
         ostclass = ost_file.OstFile('ostIn.txt')
         ostclass.paramsdf = ost_par
         ostclass.tied_params = ost_tied
         ostclass.int_params = ost_int
         ostclass.obsdf = ost_obs
         ostclass.in_files = self.files
-        ostclass.temp_files = [os.path.splitext(file)[0] + '.tpl' for file in self.files]
+        ostclass.temp_files = [os.path.splitext(file)[0] + '.tpl'
+                               for file in self.files]
 
         extra_files = self.extra_files
         for script in self.statscripts:
@@ -1763,7 +1812,7 @@ class Setup:
         ostclass.extra_files = self.extra_files
 
         ostclass.extra_dirs = self.directories
-        
+
         ostclass.configbas['ProgramType'] = self.ost_programtype
         ostclass.write()
         pass
@@ -1818,7 +1867,7 @@ class Setup:
         seventh = '0.1' + '\n'
         eigth = '{:0d}\t0.005\t4\t4\t0.005\t4'.format(noptmax) + '\n'
         ninth = '0\t0\t0' + '\n'
-        contdat = second + third + fourth + fifth + sixth + seventh + eigth + ninth
+        contdat = second + third + fourth + fifth + sixth + seventh+eigth+ninth
 
         # Writing to file
         self.pst_file = self.mod_nme+'.pst'
@@ -1843,7 +1892,8 @@ class Setup:
 
         f.write('* observation data' + '\n')
         f.write(
-            re.sub(' +', '\t', pest_obs.to_string(header=False, index=False)) + '\n')
+            re.sub(' +', '\t', pest_obs.to_string(header=False,
+                                                  index=False))+'\n')
 
         f.write('* model command line' + '\n')
         # f.write('python forward_run.py' + '\n')  # !!!!  not existing!
@@ -1962,14 +2012,11 @@ class Setup:
             f.write('rem Activate the conda environment' + '\n')
             f.write('call %CONDAPATH%/Scripts/activate.bat %ENVPATH%'+'\n\n')
 
-            # f.write('rem delete old result files' + '\n')
-            # f.write('del "'+result_ff+self.mod_nme+'DetailedTS_M11.dfs0"'+'\n')
-            # f.write('del "'+result_ff+self.mod_nme+'_WM_Print.log"'+'\n\n')
             res = [f for f in self.files if 'par_array_factors.txt' in f]
             if len(res) == 1:
                 f.write('rem update parameters' + '\n')
                 f.write('python parameter_array_update.py' + '\n' + '\n')
-            # *.she run cammnd needs / while findstr needs \\
+            # *.she run commnd needs / while findstr needs \\
             wmlogfp = os.path.join(self.pth, self.mod_nme).replace('/', '\\') +'_WM.log'
             model_run = ('rem delete old WM.log files\n'
                          'del "'+wmlogfp+'"\n\n'
@@ -1986,16 +2033,6 @@ class Setup:
                          'goto :while_g1\n'
                          ')\n\n')
             f.write(model_run)
-            # f.write('rem run MIKE SHE' + '\n')
-            # f.write('ping -n 2 localhost > nul' + '\n')
-            # f.write('start /wait MzLaunch.exe ' +
-            #         os.path.join(self.pth, self.mod_nme).replace('\\', '/')
-            #         + '.she -x' + '\n\n')
-
-            # f.write('rem calcualte statistics'+'\n')
-            # f.write('ping -n 2 localhost > nul' + '\n')
-            # f.write('findstr /m "Normal termination." "' +
-            #         result_ff+self.mod_nme+'_WM_Print.log"' + '\n\n')
 
             f.write('rem calculate statistics'+'\n')
             # f.write('ping -n 2 localhost > nul' + '\n')
@@ -2004,13 +2041,19 @@ class Setup:
 
         f.close()
 
-
     def add_array_pars(self):
+        """
+        Add array parameters from par_files to par table.
+
+        Returns
+        -------
+        None.
+
+        """
         # parameter arrays
         if len(self.par_files) > 0:
             self.par = self.write_parameter_array_factor_file()
             self.write_parameter_array_update_script()
-
 
     def write_files(self):
         """
@@ -2029,7 +2072,6 @@ class Setup:
         None.
 
         """
-
         # update file list based on par
         files = self.par.file.unique().tolist()
         files = [file.replace('\\', '/') for file in files]

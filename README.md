@@ -13,7 +13,7 @@ The only input is the *.she model file!
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikeCalSetup.
-
+Download the package and run "pip install ." in the folder with the setup file.
 ```bash
 cd mikecalsetup directory
 pip install .

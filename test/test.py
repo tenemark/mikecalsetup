@@ -8,7 +8,8 @@ Created on Wed Oct 19 02:31:13 2022
 import unittest
 import mikecalsetup.mikecalsetup as mikecalsetup
 import os
-
+import numpy as np
+import pandas as pd
 par_from = ['lu', 'ol', 'sz', 'uz', 'river']
 h0_useless = ['FlowModelDocVersion', 'ViewSettings', 'Overlays',
               'Catchment', 'Topography', 'ExtraParams', 'Result',
@@ -165,7 +166,7 @@ class TestSetup(unittest.TestCase):
         self.assertFalse(os.path.exists('par_array_factors.txt'))
         # no extra template file in ostin file
         ostin_content = open('ostin.txt').read()
-        self.assertFalse('./par_array_factors.tpl;./par_array_factors.txt' in ostin_content)
+        self.assertFalse('./par_array_factors.tpl	./par_array_factors.txt' in ostin_content)
         
         # test adding parameters
         self.setups['m1'].add_array_pars()
@@ -183,11 +184,24 @@ class TestSetup(unittest.TestCase):
         self.assertTrue(os.path.exists('par_array_factors.txt'))
         # extra template file in ostin file
         ostin_content = open('ostin.txt').read()
-        self.assertTrue('./par_array_factors.tpl;./par_array_factors.txt' in ostin_content)
+        self.assertTrue('./par_array_factors.tpl	./par_array_factors.txt' in ostin_content)
         
         # The file Level.dfs2 added another layer, test that no changes to this layer 
         # also two categories, test that updated correctly with class_value
- 
+        par = self.setups['m1'].par
+        self.setups['m1'].par = par[par['file'] != 'par_array_factors.txt']
+        par_files = self.setups['m1'].par_files
+        par_files.loc['sz_Drainage_Level_arrfile', 'method'] = 'class_value'
+        self.setups['m1'].par_files = par_files
+        self.setups['m1'].add_array_pars()
+        self.assertTrue(os.path.exists('sz_Drainage_Level_arrfile.tpl.npy'))
+        tpl_array = np.load('sz_Drainage_Level_arrfile.tpl.npy',
+                            allow_pickle=True)
+        self.assertEqual(np.sum(tpl_array == '__sz_Drainage_Level_arrfile00__'), 34)       
+        df = pd.read_csv("par_array_factors.txt", sep='\t', index_col=0)
+        self.assertEqual(df.columns.tolist()[-1], 'value')  # last column has to be value for template file writer to work 
+        self.assertEqual(df.shape, (5, 4))
+
 
 class TestExtractParameters(unittest.TestCase):
     """Test ExtractParameters class of mikecalsetup."""
