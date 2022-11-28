@@ -1,4 +1,4 @@
-# mikecalsetup
+# mikeCalSetup
 
 mikeCalSetup can create an initial, ready-to-run setup for model calibration of Mike She models in Ostrich or PEST. 
 
@@ -15,7 +15,8 @@ The only input is the *.she model file!
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikeCalSetup.
 
 ```bash
-pip install mikecalsetup
+cd mikecalsetup directory
+pip install .
 ```
 
 ## Usage
@@ -25,7 +26,7 @@ import mikecalsetup.mikecalsetup as mikecalsetup
 
 # extract all relevant information from model
 mod_nme = 'Karup_basic0'  # name of model (no extension)
-pth = '\\'.join(mikecalsetup.__file__.split('\\')[:-1])+'\\test\\example_models\\Karup\\Karup_Basic'  # relative path to model
+pth = '.\\test\\example_models\\Karup\\Karup_Basic'  # relative path to model !!! FULL PATHS NOT SUPPORTED!
 setup = mikecalsetup.Setup(mod_nme, pth)
 
 # constrain the number of processes that are parameterized with the par_from variable
@@ -37,11 +38,13 @@ setup.mzpath
 # check that python environment is correct
 setup.environment
 
-# drop parameters not needed for the calibration
+# parameters are specified in the par dataframe
 par = setup.par
 par_nme = par.index.to_list()
-drop_par = 'ol_InitialWaterDepth'
-par_nme.remove(drop_par)
+
+# drop parameters not needed for the calibration
+drop_par = ['ol_InitialWaterDepth', 'sz_Drainage_Level']
+par_nme = [nme for nme in par_nme if nme not in drop_par]
 par = par.loc[par_nme]
 
 # set transform ['none', 'fixed', 'tied'], 
@@ -57,6 +60,11 @@ par.loc['ol_Manning', 'value'] = 2.5
 group = [nme for nme in par_nme if nme.endswith('HydrGenuchten_Ks')]
 par.loc[group, ['lower', 'upper']] = 0.39, 0.46
 
+# parameter files that can be parameterized are located in the par_files variable
+# par_files = setup.par_files
+# add parameters from par_files
+# setup.add_array_pars()
+
 # assign parameter dataframe back to class
 setup.par = par
 
@@ -71,3 +79,7 @@ results['stats'] = 'fbal, nse'  # possibilities = rmse, kge, nse, pcc, fbal deli
 setup.write_files()
 
 ```
+
+## Tests
+A collection of tests are developed using `unittest <https://docs.python.org/3/library/unittest.html>`_. 
+The test script is located in the test folder along with MIKE SHE example model setups.

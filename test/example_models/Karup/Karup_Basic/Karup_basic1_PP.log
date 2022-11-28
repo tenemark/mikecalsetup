@@ -1,0 +1,37 @@
+ERRORS AND MESSAGES FROM 64-bit version of MIKE SHE Pre-processor. Input file : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic1.she
+=====================================================================================================================================================================================================================
+ 
+Print Log file : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic.she - Result Files\Karup_basic1_PP_Print.log
+Fif file : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic.she - Result Files\Karup_basic1.fif
+ 
+Processing...
+SimSpec and storing
+Opening fif file
+Grid Output
+ 
+WARNING: 1 detailed MIKE 11 TS output point(s) ignored
+         - not possible in this simulation.
+Catchment Grid
+Frame Data
+Topography
+ 
+WARNING: Input file grid is not aligned with model grid
+         - using Bilinear interpolation from input grid to model grid
+SimGrid Data Item: Ground Levels
+Input Dfs2 file: C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Model inputs\Maps\dtm_50m.dfs2
+     - Item no.: 1
+Precipitation
+potential ET
+Landuse data
+ET/Vegetation
+ 
+ERROR  : The DFS2 file does not cover the simulation period
+File : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Model_Inputs\Root Depth.dfs2
+Item text:   Rooting depth
+ERROR: Failed to make parameter 'RD'
+Programming error: mshegridts improper cleanup of objects
+ 
+ 
+Abnormal termination
+
+

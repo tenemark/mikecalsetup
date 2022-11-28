@@ -1,0 +1,1002 @@
+// Created     : 2021-10-28 12:26:9
+// DLL         : C:\Work\Main\Products\bin\x64\pfs2004.dll
+// Version     : 20.0.0.15298
+
+[UzSoilProp]
+   [UzSoilPropDocVersion]
+      Touched = 0
+      Version = 2
+   EndSect  // UzSoilPropDocVersion
+
+   [SOILSETUP]
+      Touched = 1
+      MzSEPfsListItemCount = 12
+      NO_SOILS = 12
+      [SoilNo_1]
+         SOILNAME = 'Clay'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.015
+            M = 0.201915
+            N = 1.253
+            ThetaR = 0.098
+            ThetaS = 0.459
+            Green_Ampt_Suction = -0.3163
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.015
+            Ks = 1.71e-07
+            L = 0.5
+            M = 0.201915
+            N = 1.253
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 66.6667
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_1
+
+      [SoilNo_2]
+         SOILNAME = 'Clay Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0158
+            M = 0.293785
+            N = 1.416
+            ThetaR = 0.079
+            ThetaS = 0.442
+            Green_Ampt_Suction = -0.2088
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0158
+            Ks = 9.47e-08
+            L = 0.5
+            M = 0.293785
+            N = 1.416
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 63.2911
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_2
+
+      [SoilNo_3]
+         SOILNAME = 'Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0111
+            M = 0.320652
+            N = 1.472
+            ThetaR = 0.061
+            ThetaS = 0.399
+            Green_Ampt_Suction = -0.0889
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0111
+            Ks = 1.39e-07
+            L = 0.5
+            M = 0.320652
+            N = 1.472
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 90.0901
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_3
+
+      [SoilNo_4]
+         SOILNAME = 'Loamy Sand'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0348
+            M = 0.427262
+            N = 1.746
+            ThetaR = 0.049
+            ThetaS = 0.39
+            Green_Ampt_Suction = -0.0613
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0348
+            Ks = 1.22e-06
+            L = 0.5
+            M = 0.427262
+            N = 1.746
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 28.7356
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_4
+
+      [SoilNo_5]
+         SOILNAME = 'Sand'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0352
+            M = 0.685238
+            N = 3.177
+            ThetaR = 0.053
+            ThetaS = 0.375
+            Green_Ampt_Suction = -0.0495
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0352
+            Ks = 7.44e-06
+            L = 0.5
+            M = 0.685238
+            N = 3.177
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 28.4091
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_5
+
+      [SoilNo_6]
+         SOILNAME = 'Sandy Clay'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0334
+            M = 0.172185
+            N = 1.208
+            ThetaR = 0.117
+            ThetaS = 0.385
+            Green_Ampt_Suction = -1
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0334
+            Ks = 1.31e-07
+            L = 0.5
+            M = 0.172185
+            N = 1.208
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 29.9401
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_6
+
+      [SoilNo_7]
+         SOILNAME = 'Sandy Clay Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0211
+            M = 0.24812
+            N = 1.33
+            ThetaR = 0.063
+            ThetaS = 0.384
+            Green_Ampt_Suction = -0.2185
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0211
+            Ks = 1.53e-07
+            L = 0.5
+            M = 0.24812
+            N = 1.33
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 47.3934
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_7
+
+      [SoilNo_8]
+         SOILNAME = 'Sandy Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0267
+            M = 0.309869
+            N = 1.449
+            ThetaR = 0.039
+            ThetaS = 0.387
+            Green_Ampt_Suction = -0.1101
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0267
+            Ks = 4.43e-07
+            L = 0.5
+            M = 0.309869
+            N = 1.449
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 37.4532
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_8
+
+      [SoilNo_9]
+         SOILNAME = 'Silt'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0066
+            M = 0.404407
+            N = 1.679
+            ThetaR = 0.05
+            ThetaS = 0.489
+            Green_Ampt_Suction = -1
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0066
+            Ks = 5.06e-07
+            L = 0.5
+            M = 0.404407
+            N = 1.679
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 151.515
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_9
+
+      [SoilNo_10]
+         SOILNAME = 'Silty Clay'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0162
+            M = 0.242998
+            N = 1.321
+            ThetaR = 0.111
+            ThetaS = 0.481
+            Green_Ampt_Suction = -0.2922
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0162
+            Ks = 1.11e-07
+            L = 0.5
+            M = 0.242998
+            N = 1.321
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 61.7284
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_10
+
+      [SoilNo_11]
+         SOILNAME = 'Silty Clay Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0084
+            M = 0.342538
+            N = 1.521
+            ThetaR = 0.09
+            ThetaS = 0.482
+            Green_Ampt_Suction = -0.273
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0084
+            Ks = 1.29e-07
+            L = 0.5
+            M = 0.342538
+            N = 1.521
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 119.048
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_11
+
+      [SoilNo_12]
+         SOILNAME = 'Silt Loam'
+         HYDRCONDCURVETYPE = 2
+         RETENTIONCURVETYPE = 1
+         COMMENT = ''
+         BulkDensity = 1700.0
+         IncludeMacropores = 0
+         [ReteTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            PFfc = 2
+            PFw = 4.2
+            ThetaEff = 0.385
+            NO_ITEM = 0
+            Green_Ampt_Suction = -1
+         EndSect  // ReteTabulated
+
+         [ReteGenuchten]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Alpha = 0.0051
+            M = 0.398677
+            N = 1.663
+            ThetaR = 0.065
+            ThetaS = 0.439
+            Green_Ampt_Suction = -0.1668
+         EndSect  // ReteGenuchten
+
+         [ReteCamp]
+            Touched = 1
+            PFfc = 2
+            PFw = 4.2
+            Lambda = 0.14
+            ThetaS = 0.38
+            PsiB = 0.14
+            Green_Ampt_Suction = -1
+         EndSect  // ReteCamp
+
+         [HydrAverjanov]
+            Touched = 1
+            Ks = 2e-06
+            N = 13
+            ThetaR = 0.01
+            ThetaS = 0.38
+         EndSect  // HydrAverjanov
+
+         [HydrTabulated]
+            Touched = 1
+            MzSEPfsListItemCount = 0
+            NO_ITEM = 0
+            UserInputAs = 0
+         EndSect  // HydrTabulated
+
+         [HydrGenuchten]
+            Touched = 1
+            Alpha = 0.0051
+            Ks = 2.11e-07
+            L = 0.5
+            M = 0.398677
+            N = 1.663
+         EndSect  // HydrGenuchten
+
+         [HydrCampBurd]
+            Touched = 1
+            Ks = 2e-06
+            Lambda = 0.14
+            PsiB = 196.078
+         EndSect  // HydrCampBurd
+
+         [Macropores]
+            Touched = 1
+            Matrix_MP = 300
+            Mp_Matrix = 300
+            Porosity = 0.02
+            PsiThreshold = -0.15
+            SaturatedConductivity = 1e-05
+            ConductivityExponent = 3
+         EndSect  // Macropores
+
+      EndSect  // SoilNo_12
+
+   EndSect  // SOILSETUP
+
+EndSect  // UzSoilProp
+

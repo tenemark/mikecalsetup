@@ -1,0 +1,154 @@
+// Created     : 2016-09-6 17:3:38
+// DLL id      : C:\Program Files (x86)\DHI\2016\bin\x64\pfs2004.dll
+// PFS version : Nov 22 2015 02:58:09
+
+[MAP]
+   [GEOMETRY]
+      x0 = 493900
+      y0 = 6220750
+      x1 = 526400
+      y1 = 6255750
+      OverlayFilename = |.\GIS Data\D200_2015.bmp|
+   EndSect  // GEOMETRY
+
+EndSect  // MAP
+
+[SOIL]
+   [DEFAULT_DATA]
+      SoilTextOn = 1
+      MapTextOn = 1
+   EndSect  // DEFAULT_DATA
+
+EndSect  // SOIL
+
+[WEL_CFG]
+   [WELLDATA]
+      Touched = 0
+      NoWells = 1
+      IncludeFractureWell = 0
+      [WELLNO_1]
+         ID = 'Pindsobro'
+         XCOR = 513900
+         YCOR = 6230750
+         LEVEL = 30
+         WELLDEPTH1 = 40
+         WELL_FIELD_ID = 0
+         [FILTERDATA]
+            Touched = 0
+            NoFilters = 1
+            [FILTERITEM_1]
+               Top = 25
+               Bottom = 15
+               AbstrUsed = 1
+               AbstrRedFactor = 1
+               Radius = 0.25
+               Storage = 0
+               [TIME_SERIES_FILE]
+                  Touched = 1
+                  FILE_NAME = |.\Time\abs.dfs0|
+                  ITEM_COUNT = 1
+                  ITEM_NUMBERS = 2
+               EndSect  // TIME_SERIES_FILE
+
+            EndSect  // FILTERITEM_1
+
+         EndSect  // FILTERDATA
+
+         [LITOGRAFIDATA]
+            Touched = 0
+            NoLitografiLayers = 0
+         EndSect  // LITOGRAFIDATA
+
+      EndSect  // WELLNO_1
+
+   EndSect  // WELLDATA
+
+   [WELLFIELD]
+      Touched = 0
+      NoWellFields = 0
+   EndSect  // WELLFIELD
+
+   [Foreground]
+      Touched = 0
+      NumberOfLayers = 2
+      [OVERLAY_1]
+         Type = 1
+         [OverlayBMP]
+            Filename = |.\GIS Data\D200_2015.bmp|
+            BMP_X0 = 484407
+            BMP_X1 = 534044
+            BMP_Y0 = 6219380
+            BMP_Y1 = 6257187
+            BMP_TransparentColor = 16777215
+            BMP_DisplayStyle = 2
+         EndSect  // OverlayBMP
+
+         [OverlayGrid]
+            Filename = ||
+            Itemnumber = 0
+            Transparency = 2
+         EndSect  // OverlayGrid
+
+         [OverlayShape]
+            Filename = ||
+            PointSize = 1
+            PointStyle = 0
+            PointType = 7
+            PointColorR = 0
+            PointColorG = 0
+            PointColorB = 0
+            LineThickness = 0.3
+            LineStyle = 0
+            PolygonStyle = 0
+            LineColorR = 0
+            LineColorG = 0
+            LineColorB = 0
+         EndSect  // OverlayShape
+
+      EndSect  // OVERLAY_1
+
+      [OVERLAY_2]
+         Type = 3
+         [OverlayBMP]
+            Filename = ||
+            BMP_X0 = 0
+            BMP_X1 = 10000
+            BMP_Y0 = 0
+            BMP_Y1 = 10000
+            BMP_TransparentColor = 16777215
+            BMP_DisplayStyle = 0
+         EndSect  // OverlayBMP
+
+         [OverlayGrid]
+            Filename = ||
+            Itemnumber = 0
+            Transparency = 2
+         EndSect  // OverlayGrid
+
+         [OverlayShape]
+            Filename = |.\GIS Data\catchment.shp|
+            PointSize = 1
+            PointStyle = 0
+            PointType = 7
+            PointColorR = 0
+            PointColorG = 0
+            PointColorB = 0
+            LineThickness = 0.5
+            LineStyle = 0
+            PolygonStyle = 0
+            LineColorR = 0
+            LineColorG = 0
+            LineColorB = 0
+         EndSect  // OverlayShape
+
+      EndSect  // OVERLAY_2
+
+   EndSect  // Foreground
+
+   [Background]
+      Touched = 0
+      NumberOfLayers = 0
+   EndSect  // Background
+
+EndSect  // WEL_CFG
+

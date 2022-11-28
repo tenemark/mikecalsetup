@@ -1,0 +1,95 @@
+ERRORS AND MESSAGES FROM 64-bit version of MIKE SHE Pre-processor. Input file : .\test\example_models\Karup\Karup_Basic\Karup_basic0.she
+========================================================================================================================================
+ 
+Print Log file : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic0.she - Result Files\Karup_basic0_PP_Print.log
+Fif file : C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic0.she - Result Files\Karup_basic0.fif
+ 
+Processing...
+SimSpec and storing
+Opening fif file
+Grid Output
+Catchment Grid
+Frame Data
+Topography
+ 
+WARNING: Input file grid is not aligned with model grid
+         - using Bilinear interpolation from input grid to model grid
+SimGrid Data Item: Ground Levels
+Input Dfs2 file: C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Model inputs\Maps\dtm_50m.dfs2
+     - Item no.: 1
+Precipitation
+potential ET
+Landuse data
+ET/Vegetation
+Overland Data
+River Data
+ 
+Loading the MIKE 1D dll...
+Transferring MIKE 1D data...
+Processing MIKE 1D setup...
+
+ WARNING: MIKE 1D crosssection table(s) with elevation below Marker2 value.
+          The elevation value at the specified Marker2 will be used
+          for calculation of river-aquifer exchange in MIKE SHE.
+ Branch                           Chainage     min.elevation  marker2-elevation
+ Haderup River                              10994.00       9.449000       9.467000    
+ Haller River                               15473.00       33.87100       33.87900    
+ Karup River                                3000.000       71.70900       71.75100    
+ Karup River                                21000.00       41.17000       41.22100    
+ Karup River                                27000.00       34.87100       35.26100    
+ Karup River                                27813.00       33.87100       33.87900    
+ Karup River                                45000.00       17.31800       17.32600    
+ Karup River                                57054.00       10.74900       10.76700    
+ Karup River                                57941.86       9.449000       9.467000    
+ Karup River                                57942.00       9.449000       9.467000    
+ Karup River                                63000.00       6.607000       6.629000    
+ Karup River                                69000.00       3.482000       3.487000    
+ Aaresvad Creek                             0.000000       56.98000       56.99400    
+ Aaresvad Creek                             3000.000       50.54700       50.61100    
+ Aaresvad Creek                             9000.000       37.83500       37.87200    
+Inundation areas...
+ 
+WARNING: River bank level(s) above ground.
+         See the Processed Data item in the GUI: River Bank Level Minus Ground Level
+         (and lines marked with '==>' or '***' in the River Link overview section of the _PP_Print.log file).
+Overland reference system
+ 
+WARNING: The MIKE 1D setup includes coupling reach(es) where Overbank Spilling is allowed.
+         This requires that the Overland-River exchange is based on the Weir formula.
+         Overbank Spilling will NOT be calculated.
+SZ Data
+Initial potential heads 1
+Geo Layer 1 : Levels
+ 
+WARNING: Input file grid is not aligned with model grid
+         - using Bilinear interpolation from input grid to model grid
+SimGrid Data Item: Lower levels of Geological Layer of layer 1
+Input Dfs2 file: C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Model Inputs\Maps\layer1.dfs2
+     - Item no.: 1
+Geo Layer 1 : Hydr.data
+Processing boundary data
+SZ Drainage
+- processing ...
+- making reference maps ...
+UZ data
+Soil Profiles and Soil Data
+Classification Data
+
+INFO   : The specific yield of the top SZ layer has been adjusted. The new specific yield is the difference between the
+         water contents at saturation and field capacity, based on the UZ soil type at the depth of the initial water table.
+         This adjustment will provide an optimal stability for the UZ-SZ coupling.
+Storing
+ 
+Writing fif file...
+- DFS output of PreProcessed Data...
+  Done.
+ 
+- Writing PreProcessed Data tree to pfs file :
+  C:\Users\wqg436\OneDrive - Københavns Universitet\packages\mikecalsetup - Copy\test\example_models\Karup\Karup_Basic\Karup_basic0.she - Result Files\Karup_basic0_PreProcessed.PFS...
+ 
+Termination...
+ 
+ 
+Preprocessing succeeded
+
+
