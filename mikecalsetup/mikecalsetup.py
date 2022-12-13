@@ -1350,27 +1350,28 @@ class ExtractParameters():
                 sz = sz.loc[(sz['name'].isin(keep_par)) |
                             (sz['header1'] == 'Drainage')]
             # DRAINAGE
-            file_header = 'header3'   # header with type of file
-            process_header = 'header2'  # header with name of parameter
-            sz_dr = sz_dr[sz_dr[process_header] != '']
-
-            # Type 0 = Uniform spatial distribution
-            sz_dr = remove_unused_par(
-                sz_dr, ['FixedValue'], 'Type', process_header, 0)
-
-            # Type 1 = Uniform spatial distribution
-            sz_dr = remove_unused_par(sz_dr, ['FILE_NAME', 'ITEM_NUMBERS'],
-                                      'Type', process_header, 1)
-
-            # remove xyz files
-            sz_dr = sz_dr[sz_dr['header3'] != 'XYZ_FILE']
-
-            # remove draincode and distributed option code
-            sz_dr = sz_dr[~sz_dr['header2'].isin(['DrainCode',
-                                                  'DistributedOptionCode'])]
-
-            # Combine
-            sz = pd.concat([sz, sz_dr])
+            if drainage:
+                file_header = 'header3'   # header with type of file
+                process_header = 'header2'  # header with name of parameter
+                sz_dr = sz_dr[sz_dr[process_header] != '']
+    
+                # Type 0 = Uniform spatial distribution
+                sz_dr = remove_unused_par(
+                    sz_dr, ['FixedValue'], 'Type', process_header, 0)
+    
+                # Type 1 = Uniform spatial distribution
+                sz_dr = remove_unused_par(sz_dr, ['FILE_NAME', 'ITEM_NUMBERS'],
+                                          'Type', process_header, 1)
+    
+                # remove xyz files
+                sz_dr = sz_dr[sz_dr['header3'] != 'XYZ_FILE']
+    
+                # remove draincode and distributed option code
+                sz_dr = sz_dr[~sz_dr['header2'].isin(['DrainCode',
+                                                      'DistributedOptionCode'])]
+    
+                # Combine
+                sz = pd.concat([sz, sz_dr])
         return sz
 
     def extract_riv_par(self):

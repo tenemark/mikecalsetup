@@ -40,6 +40,7 @@ class OstFile:
     int_params = pd.DataFrame(columns=['name', 'init', 'lwr', 'upr'])
     obsdf = pd.DataFrame()
     
+    
     def __init__(self, pth):
         self.pth = pth
         # same as list(pars_tags_dict.keys())
@@ -83,11 +84,11 @@ class OstFile:
         lookup_sa = ['Begin'+s+'\n' for s in self.searchalg]
         # lookup_sa = ['Begin'+s+'\n' for s in list(self.pars_tags_dict.keys())]
         cf = []
+        configsa = []
         with open(self.pth, 'r') as f:
             for line in f:
                 # Search Algorithm settings
                 if line in lookup_sa:
-                    configsa = []
                     s_alg = line.replace('Begin', '').strip()
                     for line in f:
                         if s_alg in line and 'End' in line:
