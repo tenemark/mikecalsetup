@@ -1105,7 +1105,9 @@ class ExtractParameters():
             # DEMAND
             keep_par = ['DemandMoistureDeficitStartConst']
             lu_ir = remove_unused_par(lu_ir, keep_par, 'DemandCode',
-                                      'header2', 0)  # External source
+                                      'header2', 0)
+            lu_ir = remove_unused_par(lu_ir, [], 'DemandCode',
+                                      'header2', 1)
 
             lu = pd.concat([lu, lu_ir])
         return lu
