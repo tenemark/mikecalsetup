@@ -867,7 +867,8 @@ class ExtractParameters():
                   'UZSoilProfiles': '',
                   'UZSoilProfileProp': '',
                   'TIME_SERIES_FILE': 'tsfile',
-                  'ROOT_DEPTH': 'RD'}
+                  'ROOT_DEPTH': 'RD',
+                  'GroundwaterTable': 'lr_GroundwaterTable'}
 
 
     def __init__(self, parInidf, proc_active, model_types, par_from, pth):
@@ -1295,6 +1296,17 @@ class ExtractParameters():
             pump_extra = ['FracPump1', 'ThresholdPumping']
             keep_par += pump_extra if sz_wells == 1 else []
             sz = sz.loc[sz['name'].isin(keep_par)]
+
+            # groundwater table
+            gwt = self.parInidf.loc[self.parInidf['header0'] ==
+                                   'GroundwaterTable'].copy()
+            # uniform fixed value
+            gwt = remove_unused_par(gwt, ['FixedValue'], 'Type',
+                                      'header0', 0)
+            # distributed array (lazy setup, no parameters extracted)
+            gwt = remove_unused_par(gwt, [], 'Type',
+                                      'header0', 1)
+            sz = pd.concat([sz, gwt])
 
         # Finite difference
         elif self.model_types['SZ'] == 0:
@@ -1809,7 +1821,7 @@ class Setup:
         extra_files = self.extra_files
         for script in self.statscripts:
             extra_files.append(script)
-        if 'par_array_factors.txt' in self.files:
+        if './par_array_factors.txt' in self.files:
             extra_files.append('parameter_array_update.py')
         extra_files.append('sim_vs_obs.csv')
         ostclass.extra_files = self.extra_files

@@ -185,7 +185,9 @@ class TestSetup(unittest.TestCase):
         # extra template file in ostin file
         ostin_content = open('ostin.txt').read()
         self.assertTrue('./par_array_factors.tpl	./par_array_factors.txt' in ostin_content)
-        
+        # extra file in ostin
+        self.assertTrue('parameter_array_update.py' in ostin_content)
+
         # The file Level.dfs2 added another layer, test that no changes to this layer 
         # also two categories, test that updated correctly with class_value
         par = self.setups['m1'].par
@@ -275,9 +277,9 @@ class TestExtractParameters(unittest.TestCase):
                          'Saturated zone parameters not extracted correctly in model3')
         self.assertEqual(self.extpar['m4'].extract_sz_par().shape, (7, 10),
                          'Saturated zone parameters not extracted correctly in model4')
-        self.assertEqual(self.extpar['m5'].extract_sz_par().shape, (60, 10),
+        self.assertEqual(self.extpar['m5'].extract_sz_par().shape, (61, 10),
                          'Saturated zone parameters not extracted correctly in model5')
-        self.assertEqual(self.extpar['m6'].extract_sz_par().shape, (69, 10),
+        self.assertEqual(self.extpar['m6'].extract_sz_par().shape, (70, 10),
                          'Saturated zone parameters not extracted correctly in model6')
 
     def test_river(self):
