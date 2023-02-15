@@ -1,1 +1,2 @@
 test/example_models/** linguist-vendored
+*.ipynb linguist-vendored
