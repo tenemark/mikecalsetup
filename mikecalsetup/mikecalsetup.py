@@ -16,8 +16,6 @@ from mikecalsetup import ost_file
 import mikeio
 import pkg_resources
 
-# import geopandas as gp
-
 pd.options.mode.chained_assignment = "raise"
 
 
@@ -1463,18 +1461,18 @@ class Setup:
     program = 'OSTRICH'
     array_factor_fname = 'par_array_factors.txt'
     statscripts = ['stats.py']
+    extra_files = []
 
     def __init__(self, mod_nme, pth,
                  par_from=['lu', 'ol', 'sz', 'uz', 'river']):
         self.mod_nme = mod_nme
         self.statscripts = ['stats.py']
-        # self.directories = get_directories(pth)
+
         self.pth = pth.replace("/", '\\')
         self.par_from = par_from
         all_df = table_from_file(os.path.join(pth, mod_nme) + '.she')
         self.result_ff = get_result_folder(all_df, self.pth, self.mod_nme)
-        # get extra files and directories
-        self.extra_files = []
+        # get depedning directories
         self.get_extra_dir_files(all_df)
         # remove rows where data used == 0
         all_df = remove_unused_data(all_df)
@@ -1548,7 +1546,6 @@ class Setup:
                         ((all_df['name'].str.lower() == 'filename') &
                          (all_df['value'].str.len() > 0))].copy()
 
-        # ori_paths = filedf['value'].str.lower().str.split('\\').tolist()
         ori_paths = filedf['value'].str.lower().tolist()
         ori_paths = ['.\\' + os.path.normpath(os.path.join(self.pth, ori))
                      for ori in ori_paths]
@@ -1567,7 +1564,8 @@ class Setup:
             # extract unique paths
             directories = [''.join(list(x)) for x in set(tuple(x) for x in paths)]
             # does not support files that are not in same directory or below
-            if '.\..' in directories: directories.remove('.\..')
+            if '.\..' in directories:
+                directories.remove('.\..')
             # extra files are those placed in same directory as *.she file
             extra_files = ['\\'.join(path.split('\\')[:2]) for i, path in
                            enumerate(ori_paths) if length[i] == 2]
@@ -1911,7 +1909,6 @@ class Setup:
                                                   index=False))+'\n')
 
         f.write('* model command line' + '\n')
-        # f.write('python forward_run.py' + '\n')  # !!!!  not existing!
         f.write('forward.bat' + '\n')
 
         f.write('* model input/output' + '\n')
@@ -2041,10 +2038,10 @@ class Setup:
                          'if NOT %errorlevel%==0 (\n'
                          'ping -n 3 localhost > nul\n'
                          'start /wait MzLaunch.exe "' +
-                          os.path.join(self.pth, self.mod_nme).replace('\\', '/')
-                          + '.she" -x\n'
+                          os.path.join(self.pth, self.mod_nme).replace('\\', '/') +
+                          '.she" -x\n'
                          'ping -n 3 localhost > nul\n'
-                         'findstr /m "Simulation succeeded" "' +wmlogfp+'"\n'
+                         'findstr /m "Simulation succeeded" "'+wmlogfp+'"\n'
                          'goto :while_g1\n'
                          ')\n\n')
             f.write(model_run)

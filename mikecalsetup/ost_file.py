@@ -10,6 +10,21 @@ import pandas as pd
 
 
 class OstFile:
+    """
+    A class containing setup from input file to OSTRICH.
+
+    For writing an input file by specifying the required setup or loading the
+    ostin file, changing the setup and writing the ostin file again with the
+    updated setup. The variable names corresponds to language used in the
+    OSTRICH documentation.
+
+    Attributes
+    ----------
+    pth : string
+        pth to ostin file. The file needs to be named ostin.txt in accordance
+        with the OSTRICH documentation.
+    """
+
     # default basic configuration
     configbas = {'ProgramType': 'PADDS',
                  'ModelExecutable': 'forward.bat',
@@ -33,54 +48,72 @@ class OstFile:
     extra_files = []  # default extra files
     extra_dirs = []  # default extra directories
     paramsdf = pd.DataFrame(columns=['name', 'init', 'lwr',
-                                          'upr', 'txIn',
-                                          'txOst', 'txOut', 'fmt'])
+                                     'upr', 'txIn',
+                                     'txOst', 'txOut', 'fmt'])
     tied_params = pd.DataFrame(columns=['name', 'np', 'pname', 'type',
                                         'type_data(c1', 'c0)', 'fmt'])
     int_params = pd.DataFrame(columns=['name', 'init', 'lwr', 'upr'])
     obsdf = pd.DataFrame()
-    
-    
+
+    # search algorithm tags to specify in basic configuration section
+    searchalg = ['BisectionAlg', 'FletchReevesAlg', 'LevMar',
+                 'GridAlg', 'PowellAlg', 'SteepDescAlg', 'APPSO',
+                 'ParticleSwarm', 'BEERS', 'GeneticAlg',
+                 'SimulatedAlg', 'DiscreteDDSAlg',
+                 'SCEUA', 'SamplingAlg', '_DDSAU_Alg', 'GLUE',
+                 'MetropolisSampler', 'RejectionSampler', 'PADDSAlg',
+                 'ParallelPADDS', 'ParaPADDSAlg', 'ParaPADDS',
+                 'PADDS', 'SMOOTH']
+    # search algorithm parsing tags for search algorithm section
+    pars_tags_dict = {'BisectionAlgorithm': 'BisectionAlg',  # programtype: parsing tags
+                      'Fletcher-Reeves': 'FletchReevesAlg',
+                      'Levenberg-Marquardt': 'LevMar',
+                      'GridAlgorithm': 'GridAlg',
+                      'Powell': 'PowellAlg',
+                      'Steepest-Descent': 'SteepDescAlg',
+                      'APPSO': 'APPSO',
+                      'ParticleSwarm': 'ParticleSwarm',
+                      'BEERS': 'BEERS',
+                      'BinaryGeneticAlgorithm': 'GeneticAlg',
+                      'GeneticAlgorithm': 'GeneticAlg',
+                      'DiscreteSimulatedAnnealing': 'SimulatedAlg',
+                      'SimulatedAnnealing': 'SimulatedAlg',
+                      'VanderbiltSimulatedAnnealing': 'SimulatedAlg',
+                      'DiscreteDDS': 'DDSAlg',
+                      'DDS': 'DDSAlg',
+                      'ParallelDDS': 'ParallelDDSAlg',
+                      'SCEUA': 'SCEUA',
+                      'SamplingAlgorithm': 'SamplingAlg',
+                      'DDSAU': 'DDSAU_Alg',
+                      'GLUE': 'GLUE',
+                      'MetropolisSampler': 'MetropolisSampler',
+                      'RejectionSampler': 'RejectionSampler',
+                      'PADDS': 'PADDSAlg',
+                      'ParaPADDS': 'PADDSAlg',
+                      'SMOOTH': 'SMOOTH'}
+    # basic configuration setting options
+    bc_settings = ['ProgramType', 'ModelExecutable', 'ModelSubdir',
+                   'ObjectiveFunction', 'PreserveBestModel',
+                   'PreserveModelOutput', 'OstrichWarmStart',
+                   'NumDigitsOfPrecision', 'TelescopingStrategy',
+                   'RandomSeed', 'OnObsError', 'CheckSensitivities',
+                   'SuperMUSE', 'OstrichCaching', 'BoxCoxTransformation',
+                   'ModelOutputRedirectionFile']
+
     def __init__(self, pth):
         self.pth = pth
-        # same as list(pars_tags_dict.keys())
-        self.searchalg = ['BisectionAlg', 'FletchReevesAlg', 'LevMar',
-                          'GridAlg', 'PowellAlg', 'SteepDescAlg', 'APPSO',
-                          'ParticleSwarm', 'BEERS', 'GeneticAlg',
-                          'SimulatedAlg', 'DiscreteDDSAlg',
-                          'SCEUA', 'SamplingAlg', '_DDSAU_Alg', 'GLUE',
-                          'MetropolisSampler', 'RejectionSampler', 'PADDSAlg',
-                          'ParallelPADDS', 'ParaPADDSAlg', 'ParaPADDS',
-                          'PADDS', 'SMOOTH']
-        # key is programtype, value is parsing tags
-        self.pars_tags_dict = {'BisectionAlgorithm': 'BisectionAlg',
-                               'Fletcher-Reeves': 'FletchReevesAlg',
-                               'Levenberg-Marquardt': 'LevMar',
-                               'GridAlgorithm': 'GridAlg',
-                               'Powell': 'PowellAlg',
-                               'Steepest-Descent': 'SteepDescAlg',
-                               'APPSO': 'APPSO',
-                               'ParticleSwarm': 'ParticleSwarm',
-                               'BEERS': 'BEERS',
-                               'BinaryGeneticAlgorithm': 'GeneticAlg',
-                               'GeneticAlgorithm': 'GeneticAlg',
-                               'DiscreteSimulatedAnnealing': 'SimulatedAlg',
-                               'SimulatedAnnealing': 'SimulatedAlg',
-                               'VanderbiltSimulatedAnnealing': 'SimulatedAlg',
-                               'DiscreteDDS': 'DDSAlg',
-                               'DDS': 'DDSAlg',
-                               'ParallelDDS': 'ParallelDDSAlg',
-                               'SCEUA': 'SCEUA',
-                               'SamplingAlgorithm': 'SamplingAlg',
-                               'DDSAU': 'DDSAU_Alg',
-                               'GLUE': 'GLUE',
-                               'MetropolisSampler': 'MetropolisSampler',
-                               'RejectionSampler': 'RejectionSampler',
-                               'PADDS': 'PADDSAlg',
-                               'ParaPADDS': 'PADDSAlg',
-                               'SMOOTH': 'SMOOTH'}
 
     def load(self):
+        """
+        Record the ostin.txt file into instance variables.
+
+        This function overwrites default settings if specified in ostin file.
+
+        Returns
+        -------
+        None.
+
+        """
         lookup_sa = ['Begin'+s+'\n' for s in self.searchalg]
         # lookup_sa = ['Begin'+s+'\n' for s in list(self.pars_tags_dict.keys())]
         cf = []
@@ -167,7 +200,7 @@ class OstFile:
                                 temp[7] = "\\t"
                             obs.append(temp)
                 else:
-                    if not line.startswith('#') and line != '\n':  # ignore comments
+                    if not line.startswith('#') and line != '\n':
                         cf.append(line)
         # Files
         self.temp_files = temp_files
@@ -175,47 +208,20 @@ class OstFile:
         self.extra_files = extra_files
         self.extra_dirs = extra_dirs
 
-        # cfuration
+        # configuration
         self.cf = cf
         # overwrite default basic configuration
-        configbas = {'ProgramType': None,
-                        'ModelExecutable': None,
-                        'ModelSubdir': None,
-                        'ObjectiveFunction': None,
-                        'PreserveBestModel': None,
-                        'PreserveModelOutput': None,
-                        'OstrichWarmStart': None,
-                        'NumDigitsOfPrecision': None,
-                        'TelescopingStrategy': None,
-                        'RandomSeed': None,
-                        'OnObsError': None,
-                        'CheckSensitivities': None,
-                        'SuperMUSE': None,
-                        'OstrichCaching': None,
-                        'BoxCoxTransformation': None,
-                        'ModelOutputRedirectionFile': None}
+        configbas = {setting: None for setting in self.bc_settings}
+
         for line in cf:
             line = line.strip('\n')
             temp = re.split(';|\t|,| ', line)
+
             # basic configurations
-            configbas['ProgramType'] = temp[1] if temp[0] == 'ProgramType' else configbas['ProgramType']
-            configbas['ModelExecutable'] = temp[1] if temp[0] == 'ModelExecutable' else configbas['ModelExecutable']
-            configbas['ModelSubdir'] = temp[1] if temp[0] == 'ModelSubdir' else configbas['ModelSubdir']
-            configbas['ObjectiveFunction'] = temp[1] if temp[0] == 'ObjectiveFunction' else configbas['ObjectiveFunction']
-            configbas['PreserveBestModel'] = temp[1] if temp[0] == 'PreserveBestModel' else configbas['PreserveBestModel']
-            configbas['PreserveModelOutput'] = temp[1] if temp[0] == 'PreserveModelOutput' else configbas['PreserveModelOutput']
-            configbas['OstrichWarmStart'] = temp[1] if temp[0] == 'OstrichWarmStart' else configbas['OstrichWarmStart']
-            configbas['NumDigitsOfPrecision'] = temp[1] if temp[0] == 'NumDigitsOfPrecision' else configbas['NumDigitsOfPrecision']
-            configbas['TelescopingStrategy'] = temp[1] if temp[0] == 'TelescopingStrategy' else configbas['TelescopingStrategy']
-            configbas['RandomSeed'] = temp[1] if temp[0] == 'RandomSeed' else configbas['RandomSeed']
-            configbas['OnObsError'] = temp[1] if temp[0] == 'OnObsError' else configbas['OnObsError']
-            configbas['CheckSensitivities'] = temp[1] if temp[0] == 'CheckSensitivities' else configbas['CheckSensitivities']
-            configbas['SuperMUSE'] = temp[1] if temp[0] == 'SuperMUSE' else configbas['SuperMUSE']
-            configbas['OstrichCaching'] = temp[1] if temp[0] == 'OstrichCaching' else configbas['OstrichCaching']
-            configbas['BoxCoxTransformation'] = temp[1] if temp[0] == 'BoxCoxTransformation' else configbas['BoxCoxTransformation']
-            configbas['ModelOutputRedirectionFile'] = temp[1] if temp[0] == 'ModelOutputRedirectionFile' else configbas['ModelOutputRedirectionFile']
-        
+            for setting in self.bc_settings:
+                configbas[setting] = temp[1] if temp[0] == setting else configbas[setting]
         self.configbas = configbas
+
         # search algorithm configurations
         self.configsa = configsa
 
@@ -224,7 +230,7 @@ class OstFile:
                                      columns=['name', 'init', 'lwr',
                                               'upr', 'txIn',
                                               'txOst', 'txOut', 'fmt'])
-        try:
+        try:  # asking for forgiveness
             tiedparams0 = pd.DataFrame(tied_params0,
                                        columns=['name', 'np', 'pname',
                                                 'type', 'fmt'])
@@ -236,7 +242,7 @@ class OstFile:
                                                 'type_data(c1', 'c0)', 'fmt'])
         except UnboundLocalError:  # no tied parameters
             tiedparams1 = pd.DataFrame(columns=['name', 'np', 'pname', 'type',
-                     'type_data(c1', 'c0)', 'fmt'])
+                                                'type_data(c1', 'c0)', 'fmt'])
 
         # combining tied parameter section
         tied_params = pd.concat([tiedparams0, tiedparams1], ignore_index=True)
@@ -249,6 +255,14 @@ class OstFile:
                                                 'group'])
 
     def write(self):
+        """
+        Write the ostin.txt file from specified instance variables.
+
+        Returns
+        -------
+        None.
+
+        """
         configtxt = ''
         for key, value in self.configbas.items():
             if value is not None:
@@ -286,34 +300,38 @@ class OstFile:
                 f.write(('# name    init    lwr    upr    txIn    txOst    '
                          'txOut    fmt\n'))
                 f.write(
-                    re.sub(' +', '\t', self.paramsdf.to_string(header=False, index=False)) + '\n')
+                    re.sub(' +', '\t',
+                           self.paramsdf.to_string(header=False,
+                                                   index=False)) + '\n')
             f.write('EndParams' + '\n' + '\n')
             if len(self.tied_params) != 0:
                 f.write('BeginTiedParams' + '\n')
                 f.write(('# name    np    pname    type    '
                         'type_data:(c1    c0    fmt)' + '\n'))
                 f.write('#Xtied = (c1*X) + c0' + '\n')
-                f.write(re.sub(' +', '\t', self.tied_params.to_string(header=False,
-                                                                      index=False,
-                                                                      na_rep=''))+'\n')
+                f.write(re.sub(' +', '\t',
+                               self.tied_params.to_string(header=False,
+                                                          index=False,
+                                                          na_rep=''))+'\n')
                 f.write('EndTiedParams' + '\n' + '\n')
             if len(self.int_params) != 0:
                 f.write('BeginIntegerParams' + '\n')
                 f.write('# name, init, lwr, upr' + '\n')
-                f.write(re.sub(' +', '\t', self.int_params.to_string(header=False,
-                                                                     index=False,
-                                                                     na_rep=''))+'\n')
+                f.write(re.sub(' +', '\t',
+                               self.int_params.to_string(header=False,
+                                                         index=False,
+                                                         na_rep=''))+'\n')
                 f.write('EndIntegerParams' + '\n' + '\n')
 
             f.write('BeginObservations' + '\n')
             if len(self.obsdf) != 0:
-                f.write(('# name    value    weight    file    keyword    line    '
-                         'col    token    aug?    group' + '\n'))
-                f.write(
-                    re.sub(' +', '\t', self.obsdf.to_string(header=False,
-                                                            index=False)) + '\n')
+                f.write(('# name    value    weight    file    keyword    line'
+                         '    col    token    aug?    group' + '\n'))
+                f.write(re.sub(' +', '\t',
+                               self.obsdf.to_string(header=False,
+                                                    index=False)) + '\n')
             f.write('EndObservations' + '\n' + '\n')
-            
+
             if len(self.configsa) != 0:
                 pars_tag = self.pars_tags_dict[self.configbas['ProgramType']]
                 f.write('Begin' + pars_tag + '\n')

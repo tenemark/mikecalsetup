@@ -17,37 +17,45 @@ h0_useless = ['FlowModelDocVersion', 'ViewSettings', 'Overlays',
 h0_results = ['StoringOfResults']
 h0_simspec = ['SimSpec']
 
+
 # test models
 models = {'m0': {'mod_nme': 'Karup_basic0',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 0, 'UZ': 0},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True},
                  'result_ff': '.\\example_models\\Karup\\Karup_Basic\\Karup_basic0.she - Result Files/'},
           'm1': {'mod_nme': 'Karup_basic1',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 0, 'UZ': 0},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True},
                  'result_ff': '.\example_models\Karup\Karup_Basic\Karup_basic.she - Result Files/'},
           'm2': {'mod_nme': 'Karup_basic2',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 1, 'SZ': 0, 'UZ': 0},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True}},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True}},
           'm3': {'mod_nme': 'Karup_basic3',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 0, 'UZ': 0},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True}},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True}},
           'm4': {'mod_nme': 'Karup_basic4',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 0, 'UZ': 2},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True}},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True}},
           'm5': {'mod_nme': 'Karup_basic5',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 1, 'UZ': 2},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True}},
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True}},
           'm6': {'mod_nme': 'Karup_basic6',
                  'pth': './example_models/Karup/Karup_Basic/',
                  'model_types': {'OL': 0, 'SZ': 1, 'UZ': 1},
-                 'proc_active': {'ET': True, 'OL': True, 'SZ': True, 'UZ': True, 'River': True}}}
+                 'proc_active': {'ET': True, 'OL': True, 'SZ': True,
+                                 'UZ': True, 'River': True}}}
 
 
 
@@ -60,7 +68,7 @@ class Misc(unittest.TestCase):
         tbl_r = {}
         for m in models:
             tbl[m] = mikecalsetup.table_from_file(os.path.join(models[m]['pth'],
-                                                           models[m]['mod_nme']) + '.she')
+                                                               models[m]['mod_nme']) + '.she')
             tbl_r[m] = mikecalsetup.remove_unused_data(tbl[m])
         self.tbl = tbl
         self.tbl_r = tbl_r
@@ -69,7 +77,6 @@ class Misc(unittest.TestCase):
         self.assertEqual(self.tbl['m0'].shape, (3449, 10))
 
     def test_remove_unused_data(self):
-
         self.assertEqual(self.tbl_r['m0'].shape, (912, 10))
         data_used = self.tbl_r['m0'].loc[self.tbl_r['m0']['name'] == 'IsDataUsedInSetup',
                                          'value'].tolist()
@@ -167,7 +174,7 @@ class TestSetup(unittest.TestCase):
         # no extra template file in ostin file
         ostin_content = open('ostin.txt').read()
         self.assertFalse('./par_array_factors.tpl	./par_array_factors.txt' in ostin_content)
-        
+
         # test adding parameters
         self.setups['m1'].add_array_pars()
         self.setups['m1'].write_files()
@@ -188,7 +195,7 @@ class TestSetup(unittest.TestCase):
         # extra file in ostin
         self.assertTrue('parameter_array_update.py' in ostin_content)
 
-        # The file Level.dfs2 added another layer, test that no changes to this layer 
+        # The file Level.dfs2 added another layer, test that no changes to this layer
         # also two categories, test that updated correctly with class_value
         par = self.setups['m1'].par
         self.setups['m1'].par = par[par['file'] != 'par_array_factors.txt']
@@ -199,9 +206,9 @@ class TestSetup(unittest.TestCase):
         self.assertTrue(os.path.exists('sz_Drainage_Level_arrfile.tpl.npy'))
         tpl_array = np.load('sz_Drainage_Level_arrfile.tpl.npy',
                             allow_pickle=True)
-        self.assertEqual(np.sum(tpl_array == '__sz_Drainage_Level_arrfile00__'), 34)       
+        self.assertEqual(np.sum(tpl_array == '__sz_Drainage_Level_arrfile00__'), 34)
         df = pd.read_csv("par_array_factors.txt", sep='\t', index_col=0)
-        self.assertEqual(df.columns.tolist()[-1], 'value')  # last column has to be value for template file writer to work 
+        self.assertEqual(df.columns.tolist()[-1], 'value')  # last column has to be value for template file writer to work
         self.assertEqual(df.shape, (5, 4))
 
 

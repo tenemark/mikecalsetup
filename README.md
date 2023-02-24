@@ -1,14 +1,14 @@
 # mikeCalSetup
 
-mikeCalSetup can create an initial, ready-to-run setup for model calibration of Mike She models in Ostrich or PEST. 
+Manually setting up a calibration of a MIKE SHE model in an independent program can be cumbersome. Her an altenative to the manual approach is presented. With mikeCalSetup an initial, ready-to-run calibration setup of a MIKE SHE model can be created in OSTRICH or PEST automatically. 
 
 This includes:
-- Writing template files (*.she, *.mhydro, *.uzs, *.etv)
+- Writing template files (\*.she, \*.mhydro, \*.uzs, \*.etv)
 - Writing a forward model bash script
 - Writing script for calculating model performance
-- Writing input file for Ostrich or PEST
+- Writing input file for OSTRICH or PEST
 
-The only input is the *.she model file!
+The only input is the \*.she model file!
 
 ## Installation
 
@@ -20,7 +20,7 @@ pip install .
 ```
 
 ## Usage
-A short example of usage is given in the following. The jupyter notebook example_usage.ipynb provides a more complete overview of how to use the package.
+A short example of usage is given in the following. The jupyter notebook example_usage.ipynb provides a more complete overview of how to use this tool.
 ```python
 import mikecalsetup.mikecalsetup as mikecalsetup
 
@@ -75,3 +75,7 @@ setup.write_files()
 ## Tests
 A collection of tests are developed using [unittest](https://docs.python.org/3/library/unittest.html). 
 The test script is located in the test folder along with MIKE SHE example model setups.
+
+## Community guidelines
+Please do not hesitate to contact me directly if you need more information to apply the tool, find a bug, have ideas for extending the functionality. 
+If you wish to contribute, please fork the [mikeCalSetup repository] (https://github.com/tenemark/mikecalsetup) on GitHub, clone, and develop your modifications on a branch. Then submit a pull request.
