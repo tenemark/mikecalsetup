@@ -78,4 +78,4 @@ The test script is located in the test folder along with MIKE SHE example model 
 
 ## Community guidelines
 Please do not hesitate to contact me directly if you need more information to apply the tool, find a bug, have ideas for extending the functionality. 
-If you wish to contribute, please fork the [mikeCalSetup repository] (https://github.com/tenemark/mikecalsetup) on GitHub, clone, and develop your modifications on a branch. Then submit a pull request.
+If you wish to contribute, please fork the [mikeCalSetup repository](https://github.com/tenemark/mikecalsetup) on GitHub, clone, and develop your modifications on a branch. Then submit a pull request.
