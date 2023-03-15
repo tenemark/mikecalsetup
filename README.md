@@ -1,4 +1,4 @@
-# mikeCalSetup
+# mikecalsetup
 
 Manually setting up a calibration of a MIKE SHE model in an independent program can be cumbersome. Her an altenative to the manual approach is presented. With mikeCalSetup an initial, ready-to-run calibration setup of a MIKE SHE model can be created in OSTRICH or PEST automatically. 
 
@@ -12,7 +12,7 @@ The only input is the \*.she model file!
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikeCalSetup.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikecalsetup.
 Download the package and run "pip install ." in the folder with the setup file.
 ```bash
 cd mikecalsetup directory
@@ -78,4 +78,4 @@ The test script is located in the test folder along with MIKE SHE example model 
 
 ## Community guidelines
 Please do not hesitate to contact me directly if you need more information to apply the tool, find a bug, have ideas for extending the functionality. 
-If you wish to contribute, please fork the [mikeCalSetup repository](https://github.com/tenemark/mikecalsetup) on GitHub, clone, and develop your modifications on a branch. Then submit a pull request.
+If you wish to contribute, please fork the [mikecalsetup repository](https://github.com/tenemark/mikecalsetup) on GitHub, clone, and develop your modifications on a branch. Then submit a pull request.
