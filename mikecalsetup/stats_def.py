@@ -119,3 +119,24 @@ def calc_fbal(y_true, y_pred):
     """
     fbal = (y_pred.sum() - y_true.sum())/y_true.sum()
     return fbal
+
+
+def calc_me(y_true, y_pred):
+    """
+    Calculate the mean error.
+
+    Parameters
+    ----------
+    y_true : np.array
+        The true values
+    y_pred : np.array
+        The predicted values
+
+    Returns
+    -------
+    me : float
+        mean error
+
+    """
+    me = np.mean(y_pred - y_true, axis=0)
+    return me
