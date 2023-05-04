@@ -53,7 +53,7 @@ def calc_kge(y_true, y_pred):
     return kge
 
 
-def flow_variability_error(y_true, y_pred):
+def calc_flow_variability_error(y_true, y_pred):
     """
     Calculate flow variability error from KGE.
 
@@ -74,7 +74,7 @@ def flow_variability_error(y_true, y_pred):
     return alpha
 
 
-def bias_term(y_true, y_pred):
+def calc_bias_term(y_true, y_pred):
     """
     Calculate bias term from KGE.
 
