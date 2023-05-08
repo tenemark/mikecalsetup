@@ -6,6 +6,7 @@ Created on Tue Aug 16 13:02:19 2022
 """
 import numpy as np
 
+
 def calc_rmse(y_true, y_pred):
     """
     Calculate Root mean square error.
@@ -191,10 +192,9 @@ For the recession constant, RECESS from USGS is used.
 
 Raphael Schneider, GEUS Hydro, September 2018, rs@geus.dk
 """
-thresh = 0.1
 
 
-def calc_highFlowEventFreq(y_pred, thresh):
+def calc_highFlowEventFreq(y_true, y_pred, thresh=0.1):
     """
     High flow grequency.
 
@@ -211,5 +211,3 @@ def calc_highFlowEventFreq(y_pred, thresh):
         if ((y_pred[i] > thresh) & (y_pred[i-1] <= thresh)):
             count += 1
     return (count / (sum(y_pred.notna())/365))
-
-
