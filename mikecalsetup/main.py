@@ -12,9 +12,10 @@ import os
 import subprocess
 import warnings
 import sys
-from mikecalsetup import ost_file
 import mikeio
 import pkg_resources
+from mikecalsetup import ost_file
+
 
 pd.options.mode.chained_assignment = "raise"
 
@@ -84,8 +85,9 @@ def extract_observations_from_file(stat_file, program='OSTRICH'):
     lines = f.readlines()
     f.close()
 
-    best_pos_values = {'me': 0, 'mea': 0, 'rms': 0, 'kge': 1, 'pcc': 1,
-                       'nse': 1, 'fbal': 0, 'ri': 0}
+    best_pos_values = {'me': 0, 'mae': 0, 'rmse': 0, 'kge': 1, 'pcc': 1,
+                       'nse': 1, 'fbal': 0, 'ri': 0, 'wbl': 0, 'kt': 1,
+                       'pbias': 0, 'apbias': 0, 'rsr': 0}
 
     # OSTRICH
     keys = [line.split(sep)[0] for line in lines]
@@ -365,8 +367,10 @@ def table_from_file(file):
                         'name', 'value', 'line', 'col']
     if len(parInidf) == 0:
         raise ValueError('Parameter df not read correctly or file empty')
+
     parInidf['value'] = parInidf['value'].str.replace("'", "", regex=True)
-    parInidf['value'] = parInidf['value'].str.replace("|", "", regex=True)
+    parInidf['value'] = parInidf['value'].str.replace("|", "", regex=False)
+    parInidf['value'] = parInidf['value'].str.replace(r'\|', '', regex=True)
 
     # clean up convert to floats, int and str.
     parInidf['value'] = parInidf['value'].apply(convert_str_to_appr_dtypes)
@@ -787,7 +791,7 @@ def pardf_to_pest_par(par_df):
     # Parameter groups section
     # * parameter groups
     # PARGPNME INCTYP DERINC DERINCLB FORCEN DERINCMUL DERMTHD
-    pargpnme = set([idx.split('_')[0] for idx in par_df.index])
+    pargpnme = list(set([idx.split('_')[0] for idx in par_df.index]))
     pest_parg = pd.DataFrame(index=pargpnme)
     pest_parg['inctyp'] = 'relative'
     pest_parg['derinc'] = 0.01
@@ -867,7 +871,6 @@ class ExtractParameters():
                   'TIME_SERIES_FILE': 'tsfile',
                   'ROOT_DEPTH': 'RD',
                   'GroundwaterTable': 'lr_GroundwaterTable'}
-
 
     def __init__(self, parInidf, proc_active, model_types, par_from, pth):
         self.parInidf = parInidf
@@ -1199,8 +1202,8 @@ class ExtractParameters():
         uz = self.parInidf.loc[self.parInidf['header0'] == 'Unsatzone'].copy()
 
         # settings
-        uz_bypass = int(uz.loc[uz.name == 'Bypass', 'value'])
-        uz_gaa = int(uz.loc[uz.name == 'USE_Green_And_Ampt', 'value'])
+        uz_bypass = uz.loc[uz.name == 'Bypass', 'value'].iloc[0]
+        uz_gaa = uz.loc[uz.name == 'USE_Green_And_Ampt', 'value'].iloc[0]
 
         # uztype = 0 (Richards), uztype = 1 (Gravity)
         if self.model_types['UZ'] in [0, 1]:
@@ -1282,7 +1285,7 @@ class ExtractParameters():
             sz = name_after(sz, 'Name')
 
             # settings
-            sz_wells = int(sz.loc[sz.name == 'Wells', 'value'])
+            sz_wells = sz.loc[sz.name == 'Wells', 'value'].iloc[0]
 
             # keep pars
             keep_par = ['SpecificYield', 'InitialDepth', 'DepthReservoir',
@@ -1315,8 +1318,8 @@ class ExtractParameters():
             if drainage:
                 sz_dr = sz[sz['header1'].isin(['Drainage'])]
                 sz = sz[~sz['header1'].isin(['Drainage'])]
-            par_dist = int(sz.loc[sz['name'] == 'TypeOfGeoParaDistribution',
-                                  'value'])
+            par_dist = sz.loc[sz['name'] == 'TypeOfGeoParaDistribution',
+                              'value'].iloc[0]
 
             if par_dist == 0:  # Assign parameters via geological layers
                 # LAYERS
@@ -1366,22 +1369,22 @@ class ExtractParameters():
                 file_header = 'header3'   # header with type of file
                 process_header = 'header2'  # header with name of parameter
                 sz_dr = sz_dr[sz_dr[process_header] != '']
-    
+
                 # Type 0 = Uniform spatial distribution
                 sz_dr = remove_unused_par(
                     sz_dr, ['FixedValue'], 'Type', process_header, 0)
-    
+
                 # Type 1 = Uniform spatial distribution
                 sz_dr = remove_unused_par(sz_dr, ['FILE_NAME', 'ITEM_NUMBERS'],
                                           'Type', process_header, 1)
-    
+
                 # remove xyz files
                 sz_dr = sz_dr[sz_dr['header3'] != 'XYZ_FILE']
-    
+
                 # remove draincode and distributed option code
                 sz_dr = sz_dr[~sz_dr['header2'].isin(['DrainCode',
                                                       'DistributedOptionCode'])]
-    
+
                 # Combine
                 sz = pd.concat([sz, sz_dr])
         return sz
@@ -1476,7 +1479,7 @@ class Setup:
         self.get_extra_dir_files(all_df)
         # remove rows where data used == 0
         all_df = remove_unused_data(all_df)
-
+        self.all_df = all_df
         # Class variables? Header 0 in Mike she file to parse into sections
         h0_useless = ['FlowModelDocVersion', 'ViewSettings', 'Overlays',
                       'Catchment', 'Topography', 'ExtraParams', 'Result',
@@ -1490,13 +1493,13 @@ class Setup:
         # i.e. linear reservoir or finite difference for sz
         for proc in ['OL', 'SZ', 'UZ']:
             string = proc.upper() + '_ModelType'
-            model_types[proc] = int(spec.loc[spec['name'] == string, 'value'])
+            model_types[proc] = spec.loc[spec['name'] == string, 'value'].iloc[0]
         self.model_types = model_types
 
         proc_active = {}  # active processes in the simulation
         for proc in ['ET', 'OL', 'SZ', 'UZ', 'River']:
             proc_active[proc] = bool(
-                int((spec.loc[spec['name'] == proc, 'value'])))
+                spec.loc[spec['name'] == proc, 'value'].iloc[0])
         self.proc_active = proc_active
 
         # parameters ---------------------------------------------------------
@@ -1564,8 +1567,8 @@ class Setup:
             # extract unique paths
             directories = [''.join(list(x)) for x in set(tuple(x) for x in paths)]
             # does not support files that are not in same directory or below
-            if '.\..' in directories:
-                directories.remove('.\..')
+            if '.\\..' in directories:
+                directories.remove('.\\..')
             # extra files are those placed in same directory as *.she file
             extra_files = ['\\'.join(path.split('\\')[:2]) for i, path in
                            enumerate(ori_paths) if length[i] == 2]
@@ -1673,11 +1676,11 @@ class Setup:
                                                        'parameter_array_update.py')
         with open(package_path, 'r') as f:
             txt = f.read()
-        f.close()
+
         # saving script to current folder
         with open('parameter_array_update.py', 'w') as f:
             f.write(txt)
-        f.close()
+
         self.files.append(self.array_factor_fname)
 
     def extract_obs_vs_sim(self, resultsIni):
@@ -1744,8 +1747,11 @@ class Setup:
         obs_files = [os.path.normpath(os.path.join(self.pth, file))
                      for file in obs_files]
         res['obs_file'] = obs_files
-        res['stats'] = 'kge,nse'
 
+        # assign default values
+        res['stats'] = 'kge,nse'
+        res['start'] = '1970-01-01'
+        res['end'] = '2100-12-31'
         return res
 
     def write_stats_script(self):
@@ -1920,7 +1926,7 @@ class Setup:
         f.write(self.stat_file + '.ins\t' + self.stat_file)
         f.close()
 
-    def write_forward_model_old(self):
+    def write_forward_model_simple(self):
         """
         Write bash script that runs model and relevant scripts.
 
@@ -1938,8 +1944,6 @@ class Setup:
         """
         executable = sys.executable
         condapath = executable[:-len('python.exe')-1]
-        result_ff = self.result_ff
-        result_ff = result_ff.replace('/', '\\')
 
         with open('forward.bat', 'w') as f:
             f.write('@echo off' + '\n' + '\n')
@@ -1949,43 +1953,26 @@ class Setup:
             f.write('rem path to conda installation' + '\n')
             f.write('set CONDAPATH='+condapath + '\n')
 
-            f.write('rem name of the environment' + '\n')
-            f.write('set ENVNAME='+self.environment + '\n' + '\n')
+            f.write('rem activate the conda environment' + '\n')
+            f.write('call %CONDAPATH%/Scripts/activate.bat'+'\n\n')
 
-            f.write('rem activate the base environment' + '\n')
-            f.write(
-                'if %ENVNAME%==base (set ENVPATH=%CONDAPATH%) else (set ENVPATH=%CONDAPATH%\envs\%ENVNAME%)' + '\n')
-
-            f.write('rem Activate the conda environment' + '\n')
-            f.write('call %CONDAPATH%/Scripts/activate.bat %ENVPATH%'+'\n\n')
-
-            f.write('rem delete old result files' + '\n')
-            f.write('del "'+result_ff+self.mod_nme+'DetailedTS_M11.dfs0"'+'\n')
-            f.write('del "'+result_ff+self.mod_nme+'_WM_Print.log"'+'\n\n')
-
-            if 'par_array_factors.txt' in self.files:
+            res = [f for f in self.files if self.array_factor_fname in f]
+            if len(res) == 1:
                 f.write('rem update parameters' + '\n')
                 f.write('python parameter_array_update.py' + '\n' + '\n')
 
-            f.write('rem run MIKE SHE' + '\n')
-            f.write('ping -n 2 localhost > nul' + '\n')
+            f.write('rem calculating statistics'+'\n')    
             f.write('start /wait MzLaunch.exe ' +
                     os.path.join(self.pth, self.mod_nme).replace('\\', '/')
                     + '.she -x' + '\n\n')
-
-            f.write('rem calcualte statistics - only if model run to end'+'\n')
-            f.write('ping -n 2 localhost > nul' + '\n')
-            f.write('findstr /m "Normal termination." "' +
-                    result_ff+self.mod_nme+'_WM_Print.log"' + '\n\n')
 
             f.write('rem calculating statistics'+'\n')
             f.write('ping -n 2 localhost > nul' + '\n')
             for script in self.statscripts:
                 f.write('python ' + script + '\n')
 
-        f.close()
 
-    def write_forward_model(self):
+    def write_forward_model_complex(self):
         """
         Write bash script that runs model and relevant scripts.
 
@@ -2014,22 +2001,15 @@ class Setup:
             f.write('rem path to conda installation' + '\n')
             f.write('set CONDAPATH='+condapath + '\n')
 
-            f.write('rem name of the environment' + '\n')
-            f.write('set ENVNAME='+self.environment + '\n' + '\n')
+            f.write('rem activate the conda environment' + '\n')
+            f.write('call %CONDAPATH%/Scripts/activate.bat'+'\n\n')
 
-            f.write('rem activate the base environment' + '\n')
-            f.write(
-                'if %ENVNAME%==base (set ENVPATH=%CONDAPATH%) else (set ENVPATH=%CONDAPATH%\envs\%ENVNAME%)' + '\n')
-
-            f.write('rem Activate the conda environment' + '\n')
-            f.write('call %CONDAPATH%/Scripts/activate.bat %ENVPATH%'+'\n\n')
-
-            res = [f for f in self.files if 'par_array_factors.txt' in f]
+            res = [f for f in self.files if self.array_factor_fname in f]
             if len(res) == 1:
                 f.write('rem update parameters' + '\n')
                 f.write('python parameter_array_update.py' + '\n' + '\n')
             # *.she run commnd needs / while findstr needs \\
-            wmlogfp = os.path.join(self.pth, self.mod_nme).replace('/', '\\') +'_WM.log'
+            wmlogfp = os.path.join(self.pth, self.mod_nme).replace('\\', '/') +'_WM.log'
             model_run = ('rem delete old WM.log files\n'
                          'del "'+wmlogfp+'"\n\n'
                          'rem run MIKE SHE\n'
@@ -2050,8 +2030,6 @@ class Setup:
             # f.write('ping -n 2 localhost > nul' + '\n')
             for script in self.statscripts:
                 f.write('python ' + script + '\n')
-
-        f.close()
 
     def add_array_pars(self):
         """
@@ -2123,4 +2101,4 @@ class Setup:
             self.write_pst_file(pest_parg, pest_par1, pest_par2, pest_obs)
 
         # writing forward model
-        self.write_forward_model()
+        self.write_forward_model_simple()

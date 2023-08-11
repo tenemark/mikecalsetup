@@ -136,12 +136,21 @@ class OstPostProc:
         if ofs is None:
             ofs = [col for col in self.fs.columns if 'WSSE' in col]
         # Creating the scatter matrix pairplot
-        sns.pairplot(pd.concat([self.fs[ofs].assign(hue='Non-dom solutions'),
-                                self.ns[ofs].assign(hue='All solutions')],
-                               ignore_index=True),
-                     hue='hue',
-                     diag_kind='kde',
-                     palette=['orange', 'k'])
+        if 'select' not in self.fs.columns:
+            df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
+                            self.ns[ofs].assign(hue='Non-dom solutions')],
+                            ignore_index=True)
+            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
+                              palette=['orange', 'k'])
+        else:
+            ss = self.fs.loc[self.fs.select == 1]
+            df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
+                            self.ns[ofs].assign(hue='Non-dom solutions'),
+                            ss[ofs].assign(hue='Selected solutions')],
+                            ignore_index=True)
+            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
+                              palette=['orange', 'k', 'blue'])
+        return ax
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
@@ -239,25 +248,29 @@ class OstPostProc:
         pars_out = pd.concat([pars, tied])
         pars_out = pars_out.set_index('name')
 
-        # add variable parameters
-        par_names = [ind for ind in list(fs.columns) if ind in list(pars.index)]
+        # add realization columns and variable parameters
+        par_names = [par for par in list(fs.columns) if par in list(pars.name)]
         runs = fs.loc[run_i, par_names]
         runs.index = ['val_' + str(j) for j in range(len(runs.index))]
         pars_out = pd.concat([pars_out, runs.T], axis=1)
-
+        
         # calcualte tied parameters
         val_cols = pars_out.columns.str.startswith('val_')
         tied_par = pars_out['tto'].str.len() > 0
         values = pd.DataFrame(pars_out.loc[pars_out.loc[tied_par, 'tto'], val_cols].values,
                               index=pars_out.loc[tied_par].index,
                               columns=pars_out.loc[:, val_cols].columns)
-        multiplier = pars_out.loc[tied_par, 'c1'].values
+        multiplier = pars_out.loc[tied_par, 'c1'].astype(float).values
         adding = pars_out.loc[tied_par, 'c0'].astype(float).values
         pars_out.loc[tied_par, val_cols] = values.apply(lambda x: x * multiplier + adding)
 
         # add fixed parameters
         fixed_par = pars_out.loc[:, val_cols].isna().sum(axis=1) != 0
         pars_out.loc[fixed_par, val_cols] = pars_out.loc[fixed_par, 'val']
+        
+        # finalize and save
+        keep_cols = [col for col in pars_out.columns if col.startswith('val_')]
+        pars_out = pars_out[keep_cols]
         self.pars_out = pars_out
         pars_out.to_csv('OSTRICH_runs_pars.txt', sep='\t')
 
@@ -287,9 +300,9 @@ class OstPostProc:
         None.
 
         """
-        pars_out = self.pars_out
         # make sure pars_out exists
         self.ready_pars_for_runs(run_ini)
+        pars_out = self.pars_out
 
         # loading ostin
         ostin = ost_file.OstFile(self.oin_fp)
@@ -297,7 +310,7 @@ class OstPostProc:
 
         # create run directories
         run_dirs = []
-        modelsubdir = './mod'  # name change from rundir to comply with ostrich names
+        modelsubdir = './best'  # name change from rundir to comply with ostrich names
         for i, r in enumerate(pars_out.columns):
             # define and create parallel folders
             rund = modelsubdir+r.split('val')[1]+'\\'
@@ -305,14 +318,17 @@ class OstPostProc:
             if not os.path.exists(rund):
                 os.makedirs(rund)
             # copy all template files, extra files and extra folders
+            shutil.copy(self.root+ostin.configbas['ModelExecutable'],
+                        rund+ostin.configbas['ModelExecutable'])
             for ef in ostin.extra_files:
                 shutil.copy(self.root+ef, rund+ef)
-            for ed in ostin.extra_directories:
-                shutil.copytree(self.root+ed, rund+ed)
-            for t, tf in enumerate(ostin.temp_files):
+            for ed in ostin.extra_dirs:
+                if not os.path.exists(rund+ed):
+                    shutil.copytree(self.root+ed, rund+ed)
+            for t, (tf, inf) in enumerate(zip(ostin.temp_files, ostin.in_files)):
                 shutil.copy(self.root+tf, rund+tf)
                 # replacing placeholders in template files
-                with open(self.root+tf['template'], 'r') as file:
+                with open(self.root+tf, 'r') as file:
                     filedata = file.read()
                 # search and replace for current set of parameters
                 for j in range(pars_out.shape[0]):  # loop over all parameters
@@ -320,10 +336,10 @@ class OstPostProc:
                     val = str(pars_out.iloc[j, i])
                     filedata = filedata.replace(parname, val)
                 # Write to the output file
-                with open(rund+tf['output'], 'w') as file:
+                with open(rund+inf, 'w') as file:
                     file.write(filedata)
-            # write runs and parameter value overviews
-            pars_out.to_csv(rund+'OSTRICH_runs_pars.txt', sep='\t')
+        # write runs and parameter value overviews
+        pars_out.to_csv('OSTRICH_runs_pars.txt', sep='\t')
 
 
 # %%

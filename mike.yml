@@ -1,0 +1,30 @@
+name: mike
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python
+- ipython
+- jupyter
+- jupyterlab
+- notebook
+- ipykernel
+- spyder
+- pandas
+- geopandas
+- scipy
+- matplotlib
+- seaborn  # for ostpostproc
+- gdal
+- fiona
+- shapely
+- rasterio
+- xarray
+- pytest
+- conda-build  # for activating environment from bat file
+- pip
+- pip:
+  - pyemu
+  - flopy  # needed by pyemu
+  - mikeio
+  - git+https://github.com/tenemark/mikecalsetup@post_proc_dev

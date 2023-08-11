@@ -1,18 +1,24 @@
 # mikecalsetup
 
-Manually setting up a calibration of a MIKE SHE model in an independent program can be cumbersome. Her an altenative to the manual approach is presented. With mikeCalSetup an initial, ready-to-run calibration setup of a MIKE SHE model can be created in OSTRICH or PEST automatically. 
+Manually setting up a calibration of a MIKE SHE model in an independent program can be cumbersome. Here an altenative to the manual approach is presented. With mikeCalSetup an initial, ready-to-run calibration setup of a MIKE SHE model can be created in OSTRICH or PEST automatically. 
 
 This includes:
 - Writing template files (\*.she, \*.mhydro, \*.uzs, \*.etv)
 - Writing a forward model bash script
 - Writing script for calculating model performance
-- Writing input file for OSTRICH or PEST
+- Writing control file for OSTRICH or PEST
 
 The only input is the \*.she model file!
 
-## Installation
+mikecalsetup parameterizes the nested header file format found in the MIKE files she, hydro, uzs and etv. To parameterize MIKE SHE dfs0, dfs1, dfs2 and dfs3 file formats the reader is refered to the PstFrom module of pyEMU (https://github.com/pypest/pyemu). A short example of the combination of mikecalsetup with pyEMU is given in the examples folder. 
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikecalsetup.
+## Installation
+The easiest way to install mikecalsetup with all dependencies is to create an environment using the file mike.yml. 
+```bash
+conda env create -f mike.yml
+```
+
+Alternatively, use the package manager [pip](https://pip.pypa.io/en/stable/) to install mikecalsetup.
 Download the package and run "pip install ." in the folder with the setup file.
 ```bash
 cd mikecalsetup directory
@@ -20,9 +26,9 @@ pip install .
 ```
 
 ## Usage
-A short example of usage is given in the following. The jupyter notebook example_usage.ipynb provides a more complete overview of how to use this tool.
+A short example of usage is given in the following. The jupyter notebooks in the examples folder provides a more complete overview of how to use this tool.
 ```python
-import mikecalsetup.mikecalsetup as mikecalsetup
+import mikecalsetup
 
 # extract all relevant information from model
 mod_nme = 'Karup_basic0'  # name of model (no extension)
@@ -34,9 +40,6 @@ setup = mikecalsetup.Setup(mod_nme, pth, par_from=['ol', 'sz', 'uz', 'river'])  
 
 # check that path to mike she installation is correct
 setup.mzpath
-
-# check that python environment is correct
-setup.environment
 
 # parameters are specified in the par dataframe
 par = setup.par

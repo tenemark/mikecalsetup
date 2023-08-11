@@ -6,10 +6,12 @@ Created on Wed Oct 19 02:31:13 2022
 """
 
 import unittest
-import mikecalsetup.mikecalsetup as mikecalsetup
+import mikecalsetup
 import os
 import numpy as np
 import pandas as pd
+from mikecalsetup import main
+
 par_from = ['lu', 'ol', 'sz', 'uz', 'river']
 h0_useless = ['FlowModelDocVersion', 'ViewSettings', 'Overlays',
               'Catchment', 'Topography', 'ExtraParams', 'Result',
@@ -67,9 +69,9 @@ class Misc(unittest.TestCase):
         tbl = {}
         tbl_r = {}
         for m in models:
-            tbl[m] = mikecalsetup.table_from_file(os.path.join(models[m]['pth'],
+            tbl[m] = main.table_from_file(os.path.join(models[m]['pth'],
                                                                models[m]['mod_nme']) + '.she')
-            tbl_r[m] = mikecalsetup.remove_unused_data(tbl[m])
+            tbl_r[m] = main.remove_unused_data(tbl[m])
         self.tbl = tbl
         self.tbl_r = tbl_r
 
@@ -85,13 +87,13 @@ class Misc(unittest.TestCase):
 
     def test_name_after(self):
         tbl_r_lu = self.tbl_r['m0'][self.tbl_r['m0']['header0'] == 'LandUse'].copy()
-        names = mikecalsetup.name_after(tbl_r_lu, 'NAME', level=2)
+        names = main.name_after(tbl_r_lu, 'NAME', level=2)
         self.assertEqual(names['header5'].unique().tolist(),
                          ['', 'Grass', 'Forest', 'Shrubs', 'Wetlands'])
         self.assertEqual(names[names['header5'] != ''].shape, (47, 10))
 
         tbl_r_uz = self.tbl_r['m0'][self.tbl_r['m0']['header0'] == 'Unsatzone'].copy()
-        names = mikecalsetup.name_after(tbl_r_uz, 'SoilProfile_ID', level=3)
+        names = main.name_after(tbl_r_uz, 'SoilProfile_ID', level=3)
         self.assertEqual(names['header5'].unique().tolist(),
                          ['', 'Silt loam', 'Loamy sand', 'Loam'])
         self.assertEqual(names[names['header5'] != ''].shape, (119, 10))
@@ -155,7 +157,7 @@ class TestSetup(unittest.TestCase):
 
     def test_observations(self):
         """Test the observations are read correctly."""
-        self.assertEqual(self.setups['m0'].results.shape, (5, 7))
+        self.assertEqual(self.setups['m0'].results.shape, (5, 9))
 
 
     def test_add_array_pars(self):
@@ -219,13 +221,13 @@ class TestExtractParameters(unittest.TestCase):
     def setUpClass(self):   # runs once before start of testing
         extpar = {}
         for m in models:
-            all_df = mikecalsetup.table_from_file(os.path.join(models[m]['pth'],
+            all_df = main.table_from_file(os.path.join(models[m]['pth'],
                                                            models[m]['mod_nme']) + '.she')
-            all_df = mikecalsetup.remove_unused_data(all_df)
+            all_df = main.remove_unused_data(all_df)
             parInidf = all_df.loc[~all_df['header0'].isin(h0_results +
                                                           h0_simspec +
                                                           h0_useless)].copy()
-            extpar[m] = mikecalsetup.ExtractParameters(parInidf,
+            extpar[m] = main.ExtractParameters(parInidf,
                                                    models[m]['proc_active'],
                                                    models[m]['model_types'],
                                                    par_from, models[m]['pth'])
