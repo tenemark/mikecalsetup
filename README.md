@@ -1,6 +1,6 @@
 # mikecalsetup
 
-Manually setting up a calibration of a MIKE SHE model in an independent program can be cumbersome. Here an altenative to the manual approach is presented. With mikeCalSetup an initial, ready-to-run calibration setup of a MIKE SHE model can be created in OSTRICH or PEST automatically. 
+Create an initial, ready-to-run calibration setup of a MIKE SHE model in OSTRICH or PEST. 
 
 This includes:
 - Writing template files (\*.she, \*.mhydro, \*.uzs, \*.etv)
@@ -8,9 +8,7 @@ This includes:
 - Writing script for calculating model performance
 - Writing control file for OSTRICH or PEST
 
-The only input is the \*.she model file!
-
-mikecalsetup parameterizes the nested header file format found in the MIKE files she, hydro, uzs and etv. To parameterize MIKE SHE dfs0, dfs1, dfs2 and dfs3 file formats the reader is refered to the PstFrom module of pyEMU (https://github.com/pypest/pyemu). A short example of the combination of mikecalsetup with pyEMU is given in the examples folder. 
+mikecalsetup parameterizes the nested header file format (pfs files: https://docs.mikepoweredbydhi.com/core_libraries/pfs/pfs-file-content/) found in the MIKE SHE files she, hydro, uzs and etv. To parameterize the MIKE SHE data file system (dfs) format (https://docs.mikepoweredbydhi.com/core_libraries/dfs/dfs-file-system/), the reader is referred to the PstFrom module of pyEMU (https://github.com/pypest/pyemu). A short example of the combination of mikecalsetup with pyEMU is given in the examples folder.
 
 ## Installation
 The easiest way to install mikecalsetup with all dependencies is to create an environment using the file mike.yml. 
