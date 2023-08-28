@@ -76,6 +76,14 @@ setup.write_files()
 ## Tests
 A collection of tests are developed using [unittest](https://docs.python.org/3/library/unittest.html). 
 The test script is located in the test folder along with MIKE SHE example model setups.
+To run tests locally and get coverage report:
+```bash
+conda activate mike
+cd to mikecalsetup directory
+python -m unittest discover -v
+python -m coverage report
+python -m coverage html
+```
 
 ## Community guidelines
 Please do not hesitate to contact me directly if you need more information to apply the tool, find a bug, have ideas for extending the functionality. 

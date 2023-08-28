@@ -47,7 +47,7 @@ def tearDown():  # runs once in the end of all tests
     remove_files.append('par_array_factors.txt')
     # remove_files.append('stats.txt.ins')
     # remove_files.append('PstFrom.log')
-    remove_files.append('Karup_basic_pest.pst')
+    # remove_files.append('Karup_basic_pest.pst')
     remove_files.append('OSTRICH - Serial.bat')
     remove_files.append('OSTRICH - Parallel.bat')
     for file in remove_files:
