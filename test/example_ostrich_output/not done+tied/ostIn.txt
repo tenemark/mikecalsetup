@@ -1,0 +1,98 @@
+# Python generated ostIn file
+ProgramType ParaPADDS
+ModelExecutable forward.bat
+ModelSubdir mod
+ObjectiveFunction wsse
+PreserveModelOutput no
+OstrichWarmStart no
+RandomSeed 33
+OnObsError 99999
+
+# Template file list
+BeginFilePairs
+./example_models/Karup/Karup_Basic/Karup_basic0.tpl	./example_models/Karup/Karup_Basic/Karup_basic0.she
+./example_models/Karup/Karup_Basic/Model Inputs/MIKE_SHE_vege.tpl	./example_models/Karup/Karup_Basic/Model Inputs/MIKE_SHE_vege.ETV
+./example_models/Karup/Karup_Basic/Model inputs/UNSODA basic soil classes.tpl	./example_models/Karup/Karup_Basic/Model inputs/UNSODA basic soil classes.uzs
+./example_models/Karup/Karup_Mhydro/karup_v1.tpl	./example_models/Karup/Karup_Mhydro/karup_v1.mhydro
+EndFilePairs
+
+# Extra file
+BeginExtraFiles
+sim_vs_obs.csv
+stats.py
+EndExtraFiles
+
+# Extra directories
+BeginExtraDirs
+.\example_models\Karup\Karup_Basic
+.\example_models\Karup\karup_mhydro
+EndExtraDirs
+
+# Parameter section
+BeginParams
+# name    init    lwr    upr    txIn    txOst    txOut    fmt
+	__lu_Forest_LAI__	6.000000	3.000000e+00	9.000000	none	none	none	E10.4
+	__lu_Forest_RD__	800.000000	4.000000e+02	1200.000000	none	none	none	E10.4
+	__lu_Grass_Stage_1_LAI__	1.000000	5.000000e-01	1.500000	none	none	none	E10.4
+	__lu_Grass_Stage_1_RD__	300.000000	1.500000e+02	450.000000	none	none	none	E10.4
+	__lu_Grass_Stage_1_Kc__	1.000000	5.000000e-01	1.500000	none	none	none	E10.4
+	__ol_Manning__	2.000000	1.000000e+00	3.000000	none	none	none	E10.4
+	__ol_DetentionStorage__	4.000000	2.000000e+00	6.000000	none	none	none	E10.4
+	__ol_InitialWaterDepth__	0.000000	0.000000e+00	0.000000	none	none	none	E10.4
+	__sz_GeoLayersSZ_Layer_1_HorHydrCon__	0.000520	2.600000e-04	0.000780	none	none	none	E10.4
+	__sz_GeoLayersSZ_Layer_1_VerHydrCon__	0.000093	4.650000e-05	0.000140	none	none	none	E10.4
+__sz_GeoLayersSZ_Layer_1_SpecificYield__	0.200000	1.000000e-01	0.300000	none	none	none	E10.4
+	__sz_GeoLayersSZ_Layer_1_StorageCoef__	0.000100	5.000000e-05	0.000150	none	none	none	E10.4
+	__sz_Drainage_Level__	-0.500000	-7.500000e-01	-0.250000	none	none	none	E10.4
+	__uz_Loamysand_ReteGenuchten_ThetaS__	0.390000	1.950000e-01	0.585000	none	none	none	E10.4
+	__uz_Loamysand_HydrGenuchten_Ks__	0.000017	8.500000e-06	0.000025	none	none	none	E10.4
+	__uz_Loam_ReteGenuchten_ThetaS__	0.460000	2.300000e-01	0.690000	none	none	none	E10.4
+	__uz_Loam_HydrGenuchten_Ks__	0.000004	1.850000e-06	0.000006	none	none	none	E10.4
+	__uz_Siltloam_ReteGenuchten_ThetaS__	0.430000	2.150000e-01	0.645000	none	none	none	E10.4
+	__uz_Siltloam_HydrGenuchten_Ks__	0.000002	9.500000e-07	0.000003	none	none	none	E10.4
+	__riv_HaderupRiver_LeakageCoef__	0.000010	5.000000e-06	0.000015	none	none	none	E10.4
+EndParams
+
+BeginTiedParams
+# name    np    pname    type    type_data:(c1    c0    fmt)
+#Xtied = (c1*X) + c0
+	__sz_Drainage_TimeConstant__	0	5.600000e-08	E10.4	None
+	__lu_Shrubs_LAI__	1	__lu_Forest_LAI__	linear	1.0	0.0	E10.4
+	__lu_Shrubs_RD__	1	__lu_Forest_RD__	linear	1.0	0.0	E10.4
+	__lu_Wetlands_LAI__	1	__lu_Forest_LAI__	linear	1.0	0.0	E10.4
+	__lu_Wetlands_RD__	1	__lu_Forest_RD__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_2_LAI__	1	__lu_Grass_Stage_1_LAI__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_2_RD__	1	__lu_Grass_Stage_1_RD__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_2_Kc__	1	__lu_Grass_Stage_1_Kc__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_3_LAI__	1	__lu_Grass_Stage_1_LAI__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_3_RD__	1	__lu_Grass_Stage_1_RD__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_3_Kc__	1	__lu_Grass_Stage_1_Kc__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_4_LAI__	1	__lu_Grass_Stage_1_LAI__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_4_RD__	1	__lu_Grass_Stage_1_RD__	linear	1.0	0.0	E10.4
+	__lu_Grass_Stage_4_Kc__	1	__lu_Grass_Stage_1_Kc__	linear	1.0	0.0	E10.4
+__riv_GrindeskovCreek_LeakageCoef__	1	__riv_HaderupRiver_LeakageCoef__	linear	1.0	0.0	E10.4
+	__riv_HallerRiver_LeakageCoef__	1	__riv_HaderupRiver_LeakageCoef__	linear	1.0	0.0	E10.4
+	__riv_BordingRiver_LeakageCoef__	1	__riv_HaderupRiver_LeakageCoef__	linear	1.0	0.0	E10.4
+	__riv_KarupRiver_LeakageCoef__	1	__riv_HaderupRiver_LeakageCoef__	linear	1.0	0.0	E10.4
+	__riv_LeakageCoef__	1	__riv_HaderupRiver_LeakageCoef__	linear	1.0	0.0	E10.4
+EndTiedParams
+
+BeginObservations
+# name    value    weight    file    keyword    line    col    token    aug?    group
+	kge_HObs5	1	1	stats.txt	kge_HObs5	0	2	\t	yes	s5
+	nse_HObs5	1	1	stats.txt	nse_HObs5	0	2	\t	yes	s5
+	kge_HObs35	1	1	stats.txt	kge_HObs35	0	2	\t	yes	35
+	nse_HObs35	1	1	stats.txt	nse_HObs35	0	2	\t	yes	35
+	kge_HObs37	1	1	stats.txt	kge_HObs37	0	2	\t	yes	37
+	nse_HObs37	1	1	stats.txt	nse_HObs37	0	2	\t	yes	37
+	kge_HObs65	1	1	stats.txt	kge_HObs65	0	2	\t	yes	65
+	nse_HObs65	1	1	stats.txt	nse_HObs65	0	2	\t	yes	65
+kge_QSt20.05(outlet)	1	1	stats.txt	kge_QSt20.05(outlet)	0	2	\t	yes	t)
+nse_QSt20.05(outlet)	1	1	stats.txt	nse_QSt20.05(outlet)	0	2	\t	yes	t)
+EndObservations
+
+BeginPADDSAlg
+PerturbationValue 0.2
+MaxIterations 20
+SelectionMetric Random
+EndPADDSAlg

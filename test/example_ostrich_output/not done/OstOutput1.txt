@@ -1,0 +1,46 @@
+--------------------------------------------------------------------------
+ OSTRICH version 17.12.19 (Built Dec 19 2017 @ 11:07:06)
+
+ A computer program for model-independent calibration and optimization.
+
+ Author             L. Shawn Matott
+ Copyright (C) 2007 L. Shawn Matott
+
+ This program is free software; you can redistribute 
+ it and/or modify it under the terms of the GNU  
+ General Public License as published by the Free 
+ Software Foundation; either version 2 of the 
+ License, or(at your option) any later version. 
+
+ This program is distributed in the hope that it will 
+ be useful, but WITHOUT ANY WARRANTY; without even 
+ the implied warranty of MERCHANTABILITY or FITNESS 
+ FOR A PARTICULAR PURPOSE. See the GNU General Public 
+ License for more details. 
+
+ You should have received a copy of the GNU General 
+ Public License along with this program; if not, 
+ write to the Free Software Foundation, Inc., 59 
+ Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+--------------------------------------------------------------------------
+
+Ostrich Setup
+Model                  : forward.bat > OstExeOut.txt
+Algorithm              : PADDS - Pareto Archived Dynamically Dimensioned Search
+Objective Function     : WSSE
+Number of Parameters   : 39
+Number of Tied Params  : 0
+Number of Observations : 10
+Seed for Random Nums.  : 34
+
+Ostrich Run Record
+gen   WSSE(s5    )  WSSE(35    )  WSSE(37    )  WSSE(65    )  WSSE(t)    )  kge_HObs5     nse_HObs5     kge_HObs35    nse_HObs35    kge_HObs37    nse_HObs37    kge_HObs65    nse_HObs65    kge_QSt20.05(outlet)  nse_QSt20.05(outlet)  __lu_Forest_LAI__  __lu_Forest_RD__  __lu_Shrubs_LAI__  __lu_Shrubs_RD__  __lu_Wetlands_LAI__  __lu_Wetlands_RD__  __lu_Grass_Stage_1_LAI__  __lu_Grass_Stage_1_RD__  __lu_Grass_Stage_1_Kc__  __lu_Grass_Stage_2_LAI__  __lu_Grass_Stage_2_RD__  __lu_Grass_Stage_2_Kc__  __lu_Grass_Stage_3_LAI__  __lu_Grass_Stage_3_RD__  __lu_Grass_Stage_3_Kc__  __lu_Grass_Stage_4_LAI__  __lu_Grass_Stage_4_RD__  __lu_Grass_Stage_4_Kc__  __ol_Manning__  __ol_DetentionStorage__  __ol_InitialWaterDepth__  __sz_GeoLayersSZ_Layer_1_HorHydrCon__  __sz_GeoLayersSZ_Layer_1_VerHydrCon__  __sz_GeoLayersSZ_Layer_1_SpecificYield__  __sz_GeoLayersSZ_Layer_1_StorageCoef__  __sz_Drainage_Level__  __sz_Drainage_TimeConstant__  __uz_Loamysand_ReteGenuchten_ThetaS__  __uz_Loamysand_HydrGenuchten_Ks__  __uz_Loam_ReteGenuchten_ThetaS__  __uz_Loam_HydrGenuchten_Ks__  __uz_Siltloam_ReteGenuchten_ThetaS__  __uz_Siltloam_HydrGenuchten_Ks__  __riv_HaderupRiver_LeakageCoef__  __riv_GrindeskovCreek_LeakageCoef__  __riv_HallerRiver_LeakageCoef__  __riv_BordingRiver_LeakageCoef__  __riv_KarupRiver_LeakageCoef__  __riv_LeakageCoef__  trials remaining
+
+1     1.435999E+03  2.555244E+03  1.953329E+04  3.423072E+05  1.126715E+03  4.016153E+00  1.191261E+03  2.063124E+00  5.338230E+02  3.649396E+00  3.110924E+02  6.243244E-01  2.589305E+02  1.495508E+00  1.025965E+00  2.829981E+02  8.829585E-01  5.351632E+00  5.228297E+02  1.162375E+00  1.436216E+00  2.557752E+02  1.317717E+00  1.899026E+00  5.179696E+00  0.000000E+00  4.060462E-04  1.364191E-04  1.497317E-01  1.061169E-04  -6.634534E-01  7.676111E-08  2.297163E-01  1.814883E-05  4.751529E-01  3.118272E-06  4.736836E-01  2.679965E-06  1.408785E-05  5.275446E-06  1.089619E-05  9.893594E-06  8.353753E-06  6.028271E-06  0.000000E+00
+
+2     7.808766E+02  1.298620E+03  1.974827E+04  3.643608E+05  1.949738E+01  5.009744E+00  9.769708E+02  1.682974E+00  3.663429E+02  4.453822E+00  5.124939E+02  1.473543E+00  3.202647E+02  1.242047E+00  8.138103E-01  3.816435E+02  1.283213E+00  3.877385E+00  3.519382E+02  1.279763E+00  5.419005E-01  1.895224E+02  5.010392E-01  2.034965E+00  2.061583E+00  0.000000E+00  3.783682E-04  5.089516E-05  2.692811E-01  1.312767E-04  -7.060702E-01  7.850719E-08  2.802181E-01  2.441160E-05  4.656934E-01  2.279470E-06  3.380029E-01  1.173197E-06  1.394795E-05  7.264469E-06  1.213104E-05  6.644463E-06  6.619046E-06  7.716458E-06  -1.000000E+00
+2     1.435999E+03  2.555244E+03  1.953329E+04  3.423072E+05  1.126715E+03  4.016153E+00  1.191261E+03  2.063124E+00  5.338230E+02  3.649396E+00  3.110924E+02  6.243244E-01  2.589305E+02  1.495508E+00  1.025965E+00  2.829981E+02  8.829585E-01  5.351632E+00  5.228297E+02  1.162375E+00  1.436216E+00  2.557752E+02  1.317717E+00  1.899026E+00  5.179696E+00  0.000000E+00  4.060462E-04  1.364191E-04  1.497317E-01  1.061169E-04  -6.634534E-01  7.676111E-08  2.297163E-01  1.814883E-05  4.751529E-01  3.118272E-06  4.736836E-01  2.679965E-06  1.408785E-05  5.275446E-06  1.089619E-05  9.893594E-06  8.353753E-06  6.028271E-06  -1.000000E+00
+
+3     2.897218E+03  6.838240E+03  7.716589E+03  1.397330E+05  1.167525E+02  7.041148E+00  6.837671E+02  2.438044E+00  6.460899E+02  5.310073E+00  4.918588E+02  1.004580E+00  4.015270E+02  8.216521E-01  1.325453E+00  4.189976E+02  1.431339E+00  5.404588E+00  4.864007E+02  1.329739E+00  6.252248E-01  3.152693E+02  1.346398E+00  2.449704E+00  5.842355E+00  0.000000E+00  5.754937E-04  9.053808E-05  1.913052E-01  1.158409E-04  -3.790211E-01  5.647603E-08  2.594829E-01  2.380402E-05  2.465142E-01  4.591242E-06  2.723467E-01  2.797847E-06  1.297607E-05  1.083844E-05  1.385634E-05  1.051210E-05  1.306879E-05  1.444556E-05  -2.000000E+00
+3     7.808766E+02  1.298620E+03  1.974827E+04  3.643608E+05  1.949738E+01  5.009744E+00  9.769708E+02  1.682974E+00  3.663429E+02  4.453822E+00  5.124939E+02  1.473543E+00  3.202647E+02  1.242047E+00  8.138103E-01  3.816435E+02  1.283213E+00  3.877385E+00  3.519382E+02  1.279763E+00  5.419005E-01  1.895224E+02  5.010392E-01  2.034965E+00  2.061583E+00  0.000000E+00  3.783682E-04  5.089516E-05  2.692811E-01  1.312767E-04  -7.060702E-01  7.850719E-08  2.802181E-01  2.441160E-05  4.656934E-01  2.279470E-06  3.380029E-01  1.173197E-06  1.394795E-05  7.264469E-06  1.213104E-05  6.644463E-06  6.619046E-06  7.716458E-06  -2.000000E+00
+3     1.435999E+03  2.555244E+03  1.953329E+04  3.423072E+05  1.126715E+03  4.016153E+00  1.191261E+03  2.063124E+00  5.338230E+02  3.649396E+00  3.110924E+02  6.243244E-01  2.589305E+02  1.495508E+00  1.025965E+00  2.829981E+02  8.829585E-01  5.351632E+00  5.228297E+02  1.162375E+00  1.436216E+00  2.557752E+02  1.317717E+00  1.899026E+00  5.179696E+00  0.000000E+00  4.060462E-04  1.364191E-04  1.497317E-01  1.061169E-04  -6.634534E-01  7.676111E-08  2.297163E-01  1.814883E-05  4.751529E-01  3.118272E-06  4.736836E-01  2.679965E-06  1.408785E-05  5.275446E-06  1.089619E-05  9.893594E-06  8.353753E-06  6.028271E-06  -2.000000E+00

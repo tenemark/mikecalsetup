@@ -57,7 +57,7 @@ class OstPostProc:
             idx = [i for i, line in enumerate(lines)
                    if 'Ostrich Run Record\n' == line][0]
             cols = lines[idx+1].split()
-            cols = [c for c in cols if (c.find('(') > -1) | (c.find('__') > -1)]
+            cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
 
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=lino+1, header=None, sep='\s+')
@@ -72,11 +72,11 @@ class OstPostProc:
             # columns
             cols = lines[idx+1].split()
             cols = [col for col in cols if ')' != col]
-            cols = [c for c in cols if (c.find('(') > -1) | (c.find('__') > -1)]
+            cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
 
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
-                             skipfooter=len(lines)-last_idx)
+                             skipfooter=len(lines)-last_idx, engine='python')
             ns.columns = cols
         return ns
 
@@ -94,9 +94,14 @@ class OstPostProc:
         """
         fs = pd.DataFrame()
         for file in glob.glob(self.root + "OstModel*"):
-            fs = pd.concat([fs, pd.read_csv(file, sep='\s+',
+            fs = pd.concat([fs, pd.read_csv(file, sep='\s+', skiprows=1,
+                                            header=None, 
                                             index_col=0, engine='python')])
         fs.reset_index(inplace=True)
+        with open(file, 'r') as f:
+            first_line = f.readline()
+        cols = [col for col in first_line.split() if col != ')']
+        fs.columns = cols
         return fs
 
     def get_observation_weigths(self):
@@ -178,7 +183,7 @@ class OstPostProc:
 
         # define default all wsse_cols if none are specified and equal weight
         if ofs is None:
-            ofs = [col for col in fs.columns if 'WSSE' in col]
+            ofs = [col for col in fs.columns if ('WSSE' in col) or ('GCOP' in col)]
             of_weights = [1/len(ofs) for i in range(len(ofs))]
 
         # selecting solutions
@@ -251,12 +256,16 @@ class OstPostProc:
         # add realization columns and variable parameters
         par_names = [par for par in list(fs.columns) if par in list(pars.name)]
         runs = fs.loc[run_i, par_names]
-        runs.index = ['val_' + str(j) for j in range(len(runs.index))]
+        start = 1 if run_ini else 0
+        runs.index = ['val_' + str(j) for j in range(start, len(runs.index)+start)]
         pars_out = pd.concat([pars_out, runs.T], axis=1)
+        if run_ini:  # add initial run
+            pars.index = pars.name
+            pars_out['val_0'] = pars['val'].copy().astype(float)
         
         # calcualte tied parameters
         val_cols = pars_out.columns.str.startswith('val_')
-        tied_par = pars_out['tto'].str.len() > 0
+        tied_par = pars_out['tto'].str.contains('__').fillna(False)
         values = pd.DataFrame(pars_out.loc[pars_out.loc[tied_par, 'tto'], val_cols].values,
                               index=pars_out.loc[tied_par].index,
                               columns=pars_out.loc[:, val_cols].columns)
@@ -266,11 +275,14 @@ class OstPostProc:
 
         # add fixed parameters
         fixed_par = pars_out.loc[:, val_cols].isna().sum(axis=1) != 0
-        pars_out.loc[fixed_par, val_cols] = pars_out.loc[fixed_par, 'val']
+        if sum(fixed_par) > 0:  # no fixed parameters
+            fixed_vals = pars_out.loc[fixed_par, 'tto'].astype(float).values
+            pars_out.loc[fixed_par, val_cols] = np.tile(fixed_vals, sum(val_cols))
         
         # finalize and save
         keep_cols = [col for col in pars_out.columns if col.startswith('val_')]
         pars_out = pars_out[keep_cols]
+        
         self.pars_out = pars_out
         pars_out.to_csv('OSTRICH_runs_pars.txt', sep='\t')
 

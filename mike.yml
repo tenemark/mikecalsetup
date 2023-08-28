@@ -27,4 +27,5 @@ dependencies:
   - pyemu
   - flopy  # needed by pyemu
   - mikeio
+  - coverage  # to build test coverage report
   - git+https://github.com/tenemark/mikecalsetup@post_proc_dev

@@ -1,0 +1,37 @@
+--------------------------------------------------------------------------
+ OSTRICH version 17.12.19 (Built Dec 19 2017 @ 11:07:06)
+
+ A computer program for model-independent calibration and optimization.
+
+ Author             L. Shawn Matott
+ Copyright (C) 2007 L. Shawn Matott
+
+ This program is free software; you can redistribute 
+ it and/or modify it under the terms of the GNU  
+ General Public License as published by the Free 
+ Software Foundation; either version 2 of the 
+ License, or(at your option) any later version. 
+
+ This program is distributed in the hope that it will 
+ be useful, but WITHOUT ANY WARRANTY; without even 
+ the implied warranty of MERCHANTABILITY or FITNESS 
+ FOR A PARTICULAR PURPOSE. See the GNU General Public 
+ License for more details. 
+
+ You should have received a copy of the GNU General 
+ Public License along with this program; if not, 
+ write to the Free Software Foundation, Inc., 59 
+ Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+--------------------------------------------------------------------------
+
+Ostrich Setup
+Model                  : forward.bat > OstExeOut.txt
+Algorithm              : ParaPADDS - Parallel Pareto Archived Dynamically Dimensioned Search
+Objective Function     : WSSE
+Number of Parameters   : 20
+Number of Tied Params  : 19
+Number of Observations : 10
+Seed for Random Nums.  : 35
+
+Ostrich Run Record
+gen   WSSE(s5    )  WSSE(35    )  WSSE(37    )  WSSE(65    )  WSSE(t)    )  kge_HObs5     nse_HObs5     kge_HObs35    nse_HObs35    kge_HObs37    nse_HObs37    kge_HObs65    nse_HObs65    kge_QSt20.05(outlet)  nse_QSt20.05(outlet)  __lu_Forest_LAI__  __lu_Forest_RD__  __lu_Grass_Stage_1_LAI__  __lu_Grass_Stage_1_RD__  __lu_Grass_Stage_1_Kc__  __ol_Manning__  __ol_DetentionStorage__  __ol_InitialWaterDepth__  __sz_GeoLayersSZ_Layer_1_HorHydrCon__  __sz_GeoLayersSZ_Layer_1_VerHydrCon__  __sz_GeoLayersSZ_Layer_1_SpecificYield__  __sz_GeoLayersSZ_Layer_1_StorageCoef__  __sz_Drainage_Level__  __uz_Loamysand_ReteGenuchten_ThetaS__  __uz_Loamysand_HydrGenuchten_Ks__  __uz_Loam_ReteGenuchten_ThetaS__  __uz_Loam_HydrGenuchten_Ks__  __uz_Siltloam_ReteGenuchten_ThetaS__  __uz_Siltloam_HydrGenuchten_Ks__  __riv_HaderupRiver_LeakageCoef__  trials remaining

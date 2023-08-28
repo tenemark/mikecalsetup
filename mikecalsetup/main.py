@@ -1459,7 +1459,6 @@ class Setup:
     ost_programtype = 'PADDS'
     ost_math = False
     mzpath = 'C:\\Program Files (x86)\\DHI\\MIKE Zero\\2022\\bin\\x64'
-    environment = 'base'  # !!!
     stat_file = 'stats.txt'
     program = 'OSTRICH'
     array_factor_fname = 'par_array_factors.txt'

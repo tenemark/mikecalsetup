@@ -1,0 +1,20 @@
+2023-08-28 14:06:38.822717 starting: opening PstFrom.log for logging
+2023-08-28 14:06:38.823712 starting PstFrom process
+2023-08-28 14:06:38.823712 starting: setting up dirs
+2023-08-28 14:06:38.823712 starting: removing existing new_d 'pest_setup'
+2023-08-28 14:06:38.824709 finished: removing existing new_d 'pest_setup' took: 0:00:00.000997
+2023-08-28 14:06:38.824709 starting: copying original_d 'example_models\Karup\Karup_Basic' to new_d 'pest_setup'
+2023-08-28 14:06:39.734953 finished: copying original_d 'example_models\Karup\Karup_Basic' to new_d 'pest_setup' took: 0:00:00.910244
+2023-08-28 14:06:39.735957 finished: setting up dirs took: 0:00:00.912245
+2023-08-28 14:06:45.153908 transform was not passed, setting default tranform to 'log'
+2023-08-28 14:06:45.154910 starting: adding constant type m style parameters for file(s) ['Model_Inputs\\Root Depth.dfs2.txt']
+2023-08-28 14:06:45.154910 starting: loading array pest_setup\Model_Inputs\Root Depth.dfs2.txt
+2023-08-28 14:06:45.157905 finished: loading array pest_setup\Model_Inputs\Root Depth.dfs2.txt took: 0:00:00.002995
+2023-08-28 14:06:45.157905 loaded array 'example_models\Karup\Karup_Basic\Model_Inputs\Root Depth.dfs2.txt' of shape (82, 65)
+2023-08-28 14:06:45.165909 starting: writing array-style template file 'pest_setup\rd_inst0_constant.csv.tpl'
+2023-08-28 14:06:45.165909 starting: writing template file pest_setup\rd_inst0_constant.csv.tpl for ['rd_inst:0']
+2023-08-28 14:06:45.194882 finished: writing template file pest_setup\rd_inst0_constant.csv.tpl for ['rd_inst:0'] took: 0:00:00.028973
+2023-08-28 14:06:45.195882 starting: writing array-based template file 'pest_setup\rd_inst0_constant.csv.tpl'
+2023-08-28 14:06:45.200881 finished: adding constant type m style parameters for file(s) ['Model_Inputs\\Root Depth.dfs2.txt'] took: 0:00:00.045971
+2023-08-28 14:06:53.684735 forward_run line:pyemu.os_utils.run(r'RUN_MIKE_SHE_HERE')
+

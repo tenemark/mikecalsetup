@@ -1,0 +1,4 @@
+Ostrich Error Report for Processor 1 
+A total of 2 errors and/or warnings were reported
+FILE CLEANUP               : Ostrich deleted mod1/sim_vs_obs.csv 
+FILE CLEANUP               : Ostrich deleted mod1/stats.py 

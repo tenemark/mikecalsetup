@@ -277,12 +277,14 @@ class OstFile:
 
         extfiletxt = ('# Extra file\n'
                       'BeginExtraFiles\n')
+        self.extra_files = list(set(self.extra_files))  # unique files
         for efile in self.extra_files:
             extfiletxt = extfiletxt + efile + '\n'
         extfiletxt = extfiletxt + 'EndExtraFiles\n\n'
 
         extdirtxt = ('# Extra directories\n'
                      'BeginExtraDirs\n')
+        self.extra_dirs = list(set(self.extra_dirs))  # unique dirs
         for edir in self.extra_dirs:
             extdirtxt = extdirtxt + edir + '\n'
         extdirtxt = extdirtxt + 'EndExtraDirs\n\n'
@@ -309,10 +311,19 @@ class OstFile:
                 f.write(('# name    np    pname    type    '
                         'type_data:(c1    c0    fmt)' + '\n'))
                 f.write('#Xtied = (c1*X) + c0' + '\n')
-                f.write(re.sub(' +', '\t',
-                               self.tied_params.to_string(header=False,
-                                                          index=False,
-                                                          na_rep=''))+'\n')
+                tied_params_tied = self.tied_params.loc[self.tied_params['np'] != 0]
+                tied_params_fixd = self.tied_params.loc[self.tied_params['np'] == 0]  # ensuring fixed values are written as floats.
+                tied_params_fixd = tied_params_fixd.astype({'pname': float})
+                if len(tied_params_fixd) != 0:
+                    f.write(re.sub(' +', '\t',
+                                   tied_params_fixd.to_string(header=False,
+                                                              index=False,
+                                                              na_rep=''))+'\n')
+                if len(tied_params_tied) != 0:
+                    f.write(re.sub(' +', '\t',
+                                   tied_params_tied.to_string(header=False,
+                                                              index=False,
+                                                              na_rep=''))+'\n')  
                 f.write('EndTiedParams' + '\n' + '\n')
             if len(self.int_params) != 0:
                 f.write('BeginIntegerParams' + '\n')
