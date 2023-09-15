@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 OSTRICH output reading
-Example script reading all solutions from an ongoing or finished OSTRICH
-ParaPADDS calibration
+Reads OSTRICH optimization output, enabling plotting etc.
+Only tested with PADDS or ParaPADDS optimizations, probably not compatible with 
+other algorithms.
+Can also be used to check status of an ongoing optimization!
 
-Raphael Schneider, rs@geus.dk, GEUS Hydro, Mar 2023
+based on work by 
+Raphael Schneider, rs@geus.dk, GEUS Hydro, Mar 2023, modifications Sep 2023
+transfered into mikecalsetup by
+Trine Enemark
 """
 
 import os
@@ -17,7 +22,16 @@ import shutil
 
 
 class OstPostProc:
-    """Postprocessing of OSTRICH files for ParaPADDS calibration."""
+    """
+    Postprocessing of OSTRICH files for ParaPADDS calibration.
+    Reads solutions of a PADDS or ParaPADDS calibration (not tested with other 
+    algorithms; probably not compatible with other algorithms). Can then be 
+    used to
+    * plot solutions / pareto-front (trade-offs between objective functions etc)
+    * create model runs for entire pareto front or selected solutions
+    
+    Can also be used to check status of an ongoing optimization!
+    """
 
     def __init__(self, root):
         self.root = root
@@ -26,8 +40,11 @@ class OstPostProc:
         self.oin_fp = os.path.join(root, r'ostIn.txt')
 
         # extract output data
+        # ns    non-dominated solutions, i.e. pareto-front
         self.ns = self.read_ostoutput0()
+        # fs    full solution
         self.fs = self.read_ostmodel_files()
+        # ws    observation weights
         self.ws = self.get_observation_weigths()
 
     def read_ostoutput0(self):
@@ -37,7 +54,8 @@ class OstPostProc:
         Returns
         -------
         ns : pandas dataframe
-            Non-dominant solutions from ostoutputfile
+            Non-dominated solutions (pareto front) from ostoutputfile
+            Note: This can also read from a RUNNING optimization
 
         """
         with open(self.out_fp, 'r') as f:
@@ -84,12 +102,12 @@ class OstPostProc:
         """
         Record everything from ostmodel files, i.e. full set of solutions.
 
-        Includes single observations which are not present in ostoutput file.
+        Includes individual observations which are not present in ostoutput file.
 
         Returns
         -------
         fs : pandas dataframe
-            all records from ostmodel files
+            all records/solutions from ostmodel files
 
         """
         fs = pd.DataFrame()
@@ -110,8 +128,9 @@ class OstPostProc:
 
         Returns
         -------
-        ws : TYPE
-            DESCRIPTION.
+        ws : pandas dataframe
+            individual observation weights. Needed to re-calculate objective 
+            function values
 
         """
         # read ostin file
