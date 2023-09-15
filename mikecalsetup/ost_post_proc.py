@@ -21,9 +21,9 @@ class OstPostProc:
 
     def __init__(self, root):
         self.root = root
-        self.out_fp = root + r'OstOutput0.txt'
-        self.outf_fp = root + r'OstModel'
-        self.oin_fp = root + r'ostIn.txt'
+        self.out_fp = os.path.join(root, r'OstOutput0.txt')
+        self.outf_fp = os.path.join(root, r'OstModel')
+        self.oin_fp = os.path.join(root, r'ostIn.txt')
 
         # extract output data
         self.ns = self.read_ostoutput0()
@@ -93,7 +93,7 @@ class OstPostProc:
 
         """
         fs = pd.DataFrame()
-        for file in glob.glob(self.root + "OstModel*"):
+        for file in glob.glob(os.path.join(self.root, "OstModel*")):
             fs = pd.concat([fs, pd.read_csv(file, sep='\s+', skiprows=1,
                                             header=None, 
                                             index_col=0, engine='python')])
@@ -325,22 +325,22 @@ class OstPostProc:
         modelsubdir = './best'  # name change from rundir to comply with ostrich names
         for i, r in enumerate(pars_out.columns):
             # define and create parallel folders
-            rund = modelsubdir+r.split('val')[1]+'\\'
+            rund = modelsubdir+r.split('val')[1]
             run_dirs.append(rund)
             if not os.path.exists(rund):
                 os.makedirs(rund)
             # copy all template files, extra files and extra folders
-            shutil.copy(self.root+ostin.configbas['ModelExecutable'],
-                        rund+ostin.configbas['ModelExecutable'])
+            shutil.copy(os.path.join(self.root, ostin.configbas['ModelExecutable']),
+                        os.path.join(rund, ostin.configbas['ModelExecutable']))
             for ef in ostin.extra_files:
-                shutil.copy(self.root+ef, rund+ef)
+                shutil.copy(os.path.join(self.root, ef), os.path.join(rund, ef))
             for ed in ostin.extra_dirs:
                 if not os.path.exists(rund+ed):
-                    shutil.copytree(self.root+ed, rund+ed)
+                    shutil.copytree(os.path.join(self.root, ed), os.path.join(rund, ed))
             for t, (tf, inf) in enumerate(zip(ostin.temp_files, ostin.in_files)):
-                shutil.copy(self.root+tf, rund+tf)
+                shutil.copy(os.path.join(self.root, tf), os.path.join(rund, tf))
                 # replacing placeholders in template files
-                with open(self.root+tf, 'r') as file:
+                with open(os.path.join(self.root, tf), 'r') as file:
                     filedata = file.read()
                 # search and replace for current set of parameters
                 for j in range(pars_out.shape[0]):  # loop over all parameters
@@ -348,7 +348,7 @@ class OstPostProc:
                     val = str(pars_out.iloc[j, i])
                     filedata = filedata.replace(parname, val)
                 # Write to the output file
-                with open(rund+inf, 'w') as file:
+                with open(os.path.join(rund, inf), 'w') as file:
                     file.write(filedata)
         # write runs and parameter value overviews
         pars_out.to_csv('OSTRICH_runs_pars.txt', sep='\t')
