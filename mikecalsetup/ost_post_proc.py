@@ -168,25 +168,33 @@ class OstPostProc:
                 if self.fs[of].max() == 0:
                     print(f'Warning: Not plotting {of} as all solutions have value 0')
                     ofs.remove(of)
+        # to avoid large plot limits due to outliers
+        lims_by_col = dict([[of, [0, self.fs[of].quantile(0.95)]] for of in ofs])
         # Creating the scatter matrix pairplot
         if 'select' not in self.fs.columns:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
-            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
+            pl = sns.pairplot(df, hue='hue', diag_kind='kde', 
                               palette=['0.7', 'orange'], 
                               markers=['X','o'])
-            ax.set(xlim=0, ylim=0)
         else:
             ss = self.fs.loc[self.fs.select == 1]
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions'),
                             ss[ofs].assign(hue='Selected solutions')],
                             ignore_index=True)
-            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
+            pl = sns.pairplot(df, hue='hue', diag_kind='kde',
                               palette=['0.7', 'orange', 'blue'], 
                               markers=['X','o','o'])
-        return ax
+        for ax in pl.axes.flatten():
+            xlab = ax.get_xlabel()
+            if len(xlab)==0: continue
+            ax.set_xlim(lims_by_col[xlab])
+            ylab = ax.get_ylabel()
+            if len(ylab)==0: continue
+            ax.set_ylim(lims_by_col[ylab])
+        return pl
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
