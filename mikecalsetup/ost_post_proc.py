@@ -41,7 +41,8 @@ class OstPostProc:
 
         # extract output data
         # ns    non-dominated solutions, i.e. pareto-front
-        self.ns = self.read_ostoutput0()
+        # ofs   all objective function groups
+        self.ns, self.ofs = self.read_ostoutput0()
         # fs    full solution
         self.fs = self.read_ostmodel_files()
         # ws    observation weights
@@ -49,7 +50,7 @@ class OstPostProc:
 
     def read_ostoutput0(self):
         """
-        Read ostoutput file and records non-dominant solutions in dataframe.
+        Read ostoutput file and records non-dominated solutions in dataframe.
 
         Returns
         -------
@@ -76,6 +77,7 @@ class OstPostProc:
                    if 'Ostrich Run Record\n' == line][0]
             cols = lines[idx+1].split()
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
+            ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
 
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=lino+1, header=None, sep='\s+')
@@ -91,12 +93,13 @@ class OstPostProc:
             cols = lines[idx+1].split()
             cols = [col for col in cols if ')' != col]
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
+            ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
 
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
                              skipfooter=len(lines)-last_idx, engine='python')
             ns.columns = cols
-        return ns
+        return ns, ofs
 
     def read_ostmodel_files(self):
         """
@@ -158,7 +161,13 @@ class OstPostProc:
         """
         # define default all wsse_cols if none are specified
         if ofs is None:
-            ofs = [col for col in self.fs.columns if 'WSSE' in col]
+            ofs = self.ofs
+            """We are usually not interested in plotting WSSEs of groups that 
+            always have value 0 - often used to keep track of things"""
+            for of in ofs:
+                if self.fs[of].max() == 0:
+                    print(f'Warning: Not plotting {of} as all solutions have value 0')
+                    ofs.drop(of)
         # Creating the scatter matrix pairplot
         if 'select' not in self.fs.columns:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
