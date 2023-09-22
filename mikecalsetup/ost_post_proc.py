@@ -42,7 +42,7 @@ class OstPostProc:
         # extract output data
         # ns    non-dominated solutions, i.e. pareto-front
         # ofs   all objective function groups
-        self.ns, self.ofs = self.read_ostoutput0()
+        self.ns, self.ofs, self.ns_dev = self.read_ostoutput0()
         # fs    full solution
         self.fs = self.read_ostmodel_files()
         # ws    observation weights
@@ -51,12 +51,16 @@ class OstPostProc:
     def read_ostoutput0(self):
         """
         Read ostoutput file and records non-dominated solutions in dataframe.
-
+        
         Returns
         -------
         ns : pandas dataframe
             Non-dominated solutions (pareto front) from ostoutputfile
             Note: This can also read from a RUNNING optimization
+        ofs : list
+            List of all objective function groups that are optimized for
+        ns_dev : pandas dataframe
+            Development of all non-dominated solutions as algorithm progresses
 
         """
         with open(self.out_fp, 'r') as f:
@@ -69,9 +73,12 @@ class OstPostProc:
 
         # loading last set of non-dominated solutions
         if done == 0:
-            # starting index last set of non-dominated solutions
-            lino = [i for i, line in enumerate(lines)
+            # line number of last set of non-dominated solutions
+            lnol = [i for i, line in enumerate(lines)
                     if '\n' == line][-1]
+            # line number of start of list of non-dominated solutions
+            lnof = [i for i, line in enumerate(lines)
+                    if 'Ostrich Run Record\n' == line][0] + 1
             # column names
             idx = [i for i, line in enumerate(lines)
                    if 'Ostrich Run Record\n' == line][0]
@@ -79,10 +86,15 @@ class OstPostProc:
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
             ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
 
-            # loading data
-            ns = pd.read_csv(self.out_fp, skiprows=lino+1, header=None, sep='\s+')
+            # loading data - ns
+            ns = pd.read_csv(self.out_fp, skiprows=lnol+1, header=None, sep='\s+')
             ns = ns[ns.columns.tolist()[1:-1]]
             ns.columns = cols
+            # loading data - ns_dev
+            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, header=None, sep='\s+')
+            ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
+            ns_dev.columns = ['gen']+cols
+            ns_dev.set_index('gen', drop=True, inplace=True)
         elif done == 1:
             # starting index
             idx = temp[0]
@@ -99,7 +111,7 @@ class OstPostProc:
             ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
                              skipfooter=len(lines)-last_idx, engine='python')
             ns.columns = cols
-        return ns, ofs
+        return ns, ofs, ns_dev
 
     def read_ostmodel_files(self):
         """
