@@ -130,11 +130,12 @@ class OstPostProc:
             fs = pd.concat([fs, pd.read_csv(file, sep='\s+', skiprows=1,
                                             header=None, 
                                             index_col=0, engine='python')])
-        fs.reset_index(inplace=True)
         with open(file, 'r') as f:
             first_line = f.readline()
         cols = [col for col in first_line.split() if col != ')']
-        fs.columns = cols
+        fs.columns = cols[1:]
+        fs.sort_index(inplace=True) # sort after "Run" number per parallel worker
+        fs.reset_index(inplace=True, drop=True) #needed as they are numbered from 0 in *each* of the parallel files
         return fs
 
     def get_observation_weigths(self):
