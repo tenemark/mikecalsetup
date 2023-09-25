@@ -238,11 +238,11 @@ class OstPostProc:
             fs['select'] = 0
 
         # which selection marker are we at?
-        marker = ns['select'].max() + 1
+        marker = int(ns['select'].max() + 1)
 
-        # define default all wsse_cols if none are specified and equal weight
+        # define default all ofs if none are specified and equal weight
         if ofs is None:
-            ofs = [col for col in fs.columns if ('WSSE' in col) or ('GCOP' in col)]
+            ofs = self.ofs
             of_weights = [1/len(ofs) for i in range(len(ofs))]
 
         # selecting solutions
@@ -254,23 +254,21 @@ class OstPostProc:
                 fs.loc[mask1, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
-            # create some useful colummns?!?
+            # scaling to range of pareto front solutions
             for of in ofs:
-                ns[of+'_sc'] = ns[of] / fs[of].min()
+                of_min = ns[of].min()
+                of_range = ns[of].max() - ns[of].min()
+                ns[of+'_sc'] = (ns[of] - wsse_min) / wsse_range
+                fs[of+'_sc'] = (fs[of] - wsse_min) / wsse_range
 
             # calculate combined weighted OF
-            ns['OFcomb'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns['OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs['OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
             # add marker to nondomsol
-            ns.loc[ns['OFcomb'].idxmin(), 'select'] = marker
+            ns.loc[ns['OFcomb_{marker}'].idxmin(), 'select'] = marker
+            fs.loc[fs['OFcomb_{marker}'].idxmin(), 'select'] = marker
 
-            # ...and add marker to full solution
-            for i, row in fs.iterrows():
-                try:
-                    fs.loc[i, 'select'] = ns[(ns[ofs[0]] == row[ofs[0]]) &
-                                             (ns[ofs[1]] == row[ofs[1]])]['select'].values[0]
-                except IndexError:
-                    fs.loc[i, 'select'] = 0
         self.fs = fs
         self.ns = ns
 
