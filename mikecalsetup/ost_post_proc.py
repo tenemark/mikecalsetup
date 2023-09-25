@@ -154,8 +154,10 @@ class OstPostProc:
         ostin.load()
         # get observation weights
         obs = ostin.obsdf
-        ws = obs[['name', 'weight']]
+        ws = obs[['name', 'value', 'weight']]
+        ws.set_index('name', inplace=True)
         ws.columns = ['obs', 'w']
+        ws = ws.astype(np.float32)
         return ws
 
     def plot_wsse(self, ofs=None):
