@@ -215,6 +215,7 @@ class OstPostProc:
                              reselect=True):
         """
         Autoselect solutions based on method.
+        'select' is 0 by default, and +1 for each new selection
 
         Parameters
         ----------
@@ -223,9 +224,10 @@ class OstPostProc:
         ofs : list
             objective function columns in fs ans ns
         of_weights : list
-            objective function weigts
+            objective function weights
         reselect : boolean
-            should solutions be reselected
+            should solutions be reselected (i.e. former selection overwritten), 
+            or added to former selection
 
         """
         ns = self.ns
@@ -234,6 +236,9 @@ class OstPostProc:
         if reselect is True:
             ns['select'] = 0
             fs['select'] = 0
+
+        # which selection marker are we at?
+        marker = ns['select'].max() + 1
 
         # define default all wsse_cols if none are specified and equal weight
         if ofs is None:
@@ -246,7 +251,7 @@ class OstPostProc:
             for i, row in ns.iterrows():
                 mask = [fs[col] == row[col] for col in ofs]
                 mask1 = np.column_stack(mask).all(axis=1)
-                fs.loc[mask1, 'select'] = 1
+                fs.loc[mask1, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
             # create some useful colummns?!?
@@ -257,7 +262,7 @@ class OstPostProc:
             ns['OFcomb'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
             # add marker to nondomsol
-            ns.loc[ns['OFcomb'].idxmin(), 'select'] = 1
+            ns.loc[ns['OFcomb'].idxmin(), 'select'] = marker
 
             # ...and add marker to full solution
             for i, row in fs.iterrows():
