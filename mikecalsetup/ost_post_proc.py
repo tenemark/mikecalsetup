@@ -176,7 +176,7 @@ class OstPostProc:
         """
         # define default all wsse_cols if none are specified
         if ofs is None:
-            ofs = self.ofs
+            ofs = self.ofs.copy()
             """We are usually not interested in plotting WSSEs of groups that 
             always have value 0 - often used to keep track of things"""
             for of in ofs:
@@ -227,7 +227,9 @@ class OstPostProc:
             objective function weights
         reselect : boolean
             should solutions be reselected (i.e. former selection overwritten), 
-            or added to former selection
+            or added to former selection (can e.g. be used with to get 
+            "different balanced soltuions", where the different OF groups are 
+            weighted differently)
 
         """
         ns = self.ns
@@ -242,7 +244,14 @@ class OstPostProc:
 
         # define default all ofs if none are specified and equal weight
         if ofs is None:
-            ofs = self.ofs
+            ofs = self.ofs.copy()
+            """We are usually not interested in including WSSEs of groups that 
+            always have value 0 - often used to keep track of things"""
+            for of in ofs:
+                if self.fs[of].max() == 0:
+                    print(f'Warning: Not including {of} as all solutions have value 0')
+                    ofs.remove(of)
+        if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
 
         # selecting solutions
@@ -252,22 +261,24 @@ class OstPostProc:
                 mask = [fs[col] == row[col] for col in ofs]
                 mask1 = np.column_stack(mask).all(axis=1)
                 fs.loc[mask1, 'select'] = marker
+                # also add marker to ns
+                ns.loc[i, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
             # scaling to range of pareto front solutions
             for of in ofs:
                 of_min = ns[of].min()
                 of_range = ns[of].max() - ns[of].min()
-                ns[of+'_sc'] = (ns[of] - wsse_min) / wsse_range
-                fs[of+'_sc'] = (fs[of] - wsse_min) / wsse_range
+                ns[of+'_sc'] = (ns[of] - of_min) / of_range
+                fs[of+'_sc'] = (fs[of] - of_min) / of_range
 
             # calculate combined weighted OF
-            ns['OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-            fs['OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
             # add marker to nondomsol
-            ns.loc[ns['OFcomb_{marker}'].idxmin(), 'select'] = marker
-            fs.loc[fs['OFcomb_{marker}'].idxmin(), 'select'] = marker
+            ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
 
         self.fs = fs
         self.ns = ns
