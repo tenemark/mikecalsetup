@@ -184,24 +184,35 @@ class OstPostProc:
                     print(f'Warning: Not plotting {of} as all solutions have value 0')
                     ofs.remove(of)
         # to avoid large plot limits due to outliers
-        lims_by_col = dict([[of, [0, self.fs[of].quantile(0.95)]] for of in ofs])
+        lims_by_col = dict([[of, [0, self.fs[of].quantile(0.975)]] for of in ofs])
         # Creating the scatter matrix pairplot
+        # prepare markers and colour palette
+        palette = [(0.7, 0.7, 0.7), #grey
+                   (0.7, 0.0, 0.0)] #dark red
+        markers = ['.','.']
         if 'select' not in self.fs.columns:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
             pl = sns.pairplot(df, hue='hue', diag_kind='kde', 
-                              palette=['0.7', 'orange'], 
-                              markers=['X','o'])
+                              palette=palette, 
+                              markers=markers)
         else:
-            ss = self.fs.loc[self.fs.select == 1]
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
-                            self.ns[ofs].assign(hue='Non-dom solutions'),
-                            ss[ofs].assign(hue='Selected solutions')],
+                            self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
+            # add multiple selected solutions separately
+            s_max = self.fs.select.max()
+            for s in range(1, s_max+1):
+                ss = self.fs.loc[self.fs.select == s]
+                df = pd.concat([df, ss[ofs].assign(hue=f'Sel. solution {s}')],
+                                ignore_index=True)
+            # extend color palette and list of markers
+            palette.extend(sns.color_palette()[:s_max])
+            markers.extend(['X']*s_max)
             pl = sns.pairplot(df, hue='hue', diag_kind='kde',
-                              palette=['0.7', 'orange', 'blue'], 
-                              markers=['X','o','o'])
+                              palette=palette, 
+                              markers=markers)
         for ax in pl.axes.flatten():
             xlab = ax.get_xlabel()
             if len(xlab)==0: continue
