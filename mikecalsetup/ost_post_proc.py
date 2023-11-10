@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 OSTRICH output reading
-Example script reading all solutions from an ongoing or finished OSTRICH
-ParaPADDS calibration
+Reads OSTRICH optimization output, enabling plotting etc.
+Only tested with PADDS or ParaPADDS optimizations, probably not compatible with 
+other algorithms.
+Can also be used to check status of an ongoing optimization!
 
-Raphael Schneider, rs@geus.dk, GEUS Hydro, Mar 2023
+based on work by 
+Raphael Schneider, rs@geus.dk, GEUS Hydro, Mar 2023, modifications Sep 2023
+transfered into mikecalsetup by
+Trine Enemark
 """
 
 import os
@@ -17,27 +22,45 @@ import shutil
 
 
 class OstPostProc:
-    """Postprocessing of OSTRICH files for ParaPADDS calibration."""
+    """
+    Postprocessing of OSTRICH files for ParaPADDS calibration.
+    Reads solutions of a PADDS or ParaPADDS calibration (not tested with other 
+    algorithms; probably not compatible with other algorithms). Can then be 
+    used to
+    * plot solutions / pareto-front (trade-offs between objective functions etc)
+    * create model runs for entire pareto front or selected solutions
+    
+    Can also be used to check status of an ongoing optimization!
+    """
 
     def __init__(self, root):
         self.root = root
-        self.out_fp = root + r'OstOutput0.txt'
-        self.outf_fp = root + r'OstModel'
-        self.oin_fp = root + r'ostIn.txt'
+        self.out_fp = os.path.join(root, r'OstOutput0.txt')
+        self.outf_fp = os.path.join(root, r'OstModel')
+        self.oin_fp = os.path.join(root, r'ostIn.txt')
 
         # extract output data
-        self.ns = self.read_ostoutput0()
+        # ns    non-dominated solutions, i.e. pareto-front
+        # ofs   all objective function groups
+        self.ns, self.ofs, self.ns_dev = self.read_ostoutput0()
+        # fs    full solution
         self.fs = self.read_ostmodel_files()
+        # ws    observation weights
         self.ws = self.get_observation_weigths()
 
     def read_ostoutput0(self):
         """
-        Read ostoutput file and records non-dominant solutions in dataframe.
-
+        Read ostoutput file and records non-dominated solutions in dataframe.
+        
         Returns
         -------
         ns : pandas dataframe
-            Non-dominant solutions from ostoutputfile
+            Non-dominated solutions (pareto front) from ostoutputfile
+            Note: This can also read from a RUNNING optimization
+        ofs : list
+            List of all objective function groups that are optimized for
+        ns_dev : pandas dataframe
+            Development of all non-dominated solutions as algorithm progresses
 
         """
         with open(self.out_fp, 'r') as f:
@@ -50,19 +73,28 @@ class OstPostProc:
 
         # loading last set of non-dominated solutions
         if done == 0:
-            # starting index last set of non-dominated solutions
-            lino = [i for i, line in enumerate(lines)
+            # line number of last set of non-dominated solutions
+            lnol = [i for i, line in enumerate(lines)
                     if '\n' == line][-1]
+            # line number of start of list of non-dominated solutions
+            lnof = [i for i, line in enumerate(lines)
+                    if 'Ostrich Run Record\n' == line][0] + 1
             # column names
             idx = [i for i, line in enumerate(lines)
                    if 'Ostrich Run Record\n' == line][0]
             cols = lines[idx+1].split()
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
+            ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
 
-            # loading data
-            ns = pd.read_csv(self.out_fp, skiprows=lino+1, header=None, sep='\s+')
+            # loading data - ns
+            ns = pd.read_csv(self.out_fp, skiprows=lnol+1, header=None, sep='\s+')
             ns = ns[ns.columns.tolist()[1:-1]]
             ns.columns = cols
+            # loading data - ns_dev
+            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, header=None, sep='\s+')
+            ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
+            ns_dev.columns = ['gen']+cols
+            ns_dev.set_index('gen', drop=True, inplace=True)
         elif done == 1:
             # starting index
             idx = temp[0]
@@ -73,35 +105,37 @@ class OstPostProc:
             cols = lines[idx+1].split()
             cols = [col for col in cols if ')' != col]
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
+            ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
 
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
                              skipfooter=len(lines)-last_idx, engine='python')
             ns.columns = cols
-        return ns
+        return ns, ofs, ns_dev
 
     def read_ostmodel_files(self):
         """
         Record everything from ostmodel files, i.e. full set of solutions.
 
-        Includes single observations which are not present in ostoutput file.
+        Includes individual observations which are not present in ostoutput file.
 
         Returns
         -------
         fs : pandas dataframe
-            all records from ostmodel files
+            all records/solutions from ostmodel files
 
         """
         fs = pd.DataFrame()
-        for file in glob.glob(self.root + "OstModel*"):
+        for file in glob.glob(os.path.join(self.root, "OstModel*")):
             fs = pd.concat([fs, pd.read_csv(file, sep='\s+', skiprows=1,
                                             header=None, 
                                             index_col=0, engine='python')])
-        fs.reset_index(inplace=True)
         with open(file, 'r') as f:
             first_line = f.readline()
         cols = [col for col in first_line.split() if col != ')']
-        fs.columns = cols
+        fs.columns = cols[1:]
+        fs.sort_index(inplace=True) # sort after "Run" number per parallel worker
+        fs.reset_index(inplace=True, drop=True) #needed as they are numbered from 0 in *each* of the parallel files
         return fs
 
     def get_observation_weigths(self):
@@ -110,8 +144,9 @@ class OstPostProc:
 
         Returns
         -------
-        ws : TYPE
-            DESCRIPTION.
+        ws : pandas dataframe
+            individual observation weights. Needed to re-calculate objective 
+            function values
 
         """
         # read ostin file
@@ -119,8 +154,10 @@ class OstPostProc:
         ostin.load()
         # get observation weights
         obs = ostin.obsdf
-        ws = obs[['name', 'weight']]
+        ws = obs[['name', 'value', 'weight']]
+        ws.set_index('name', inplace=True)
         ws.columns = ['obs', 'w']
+        ws = ws.astype(np.float32)
         return ws
 
     def plot_wsse(self, ofs=None):
@@ -139,28 +176,57 @@ class OstPostProc:
         """
         # define default all wsse_cols if none are specified
         if ofs is None:
-            ofs = [col for col in self.fs.columns if 'WSSE' in col]
+            ofs = self.ofs.copy()
+            """We are usually not interested in plotting WSSEs of groups that 
+            always have value 0 - often used to keep track of things"""
+            for of in ofs:
+                if self.fs[of].max() == 0:
+                    print(f'Warning: Not plotting {of} as all solutions have value 0')
+                    ofs.remove(of)
+        # to avoid large plot limits due to outliers
+        lims_by_col = dict([[of, [0, self.fs[of].quantile(0.975)]] for of in ofs])
         # Creating the scatter matrix pairplot
+        # prepare markers and colour palette
+        palette = [(0.7, 0.7, 0.7), #grey
+                   (0.7, 0.0, 0.0)] #dark red
+        markers = ['.','.']
         if 'select' not in self.fs.columns:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
-            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
-                              palette=['orange', 'k'])
+            pl = sns.pairplot(df, hue='hue', diag_kind='kde', 
+                              palette=palette, 
+                              markers=markers)
         else:
-            ss = self.fs.loc[self.fs.select == 1]
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
-                            self.ns[ofs].assign(hue='Non-dom solutions'),
-                            ss[ofs].assign(hue='Selected solutions')],
+                            self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
-            ax = sns.pairplot(df, hue='hue', diag_kind='kde',
-                              palette=['orange', 'k', 'blue'])
-        return ax
+            # add multiple selected solutions separately
+            s_max = self.fs.select.max()
+            for s in range(1, s_max+1):
+                ss = self.fs.loc[self.fs.select == s]
+                df = pd.concat([df, ss[ofs].assign(hue=f'Sel. solution {s}')],
+                                ignore_index=True)
+            # extend color palette and list of markers
+            palette.extend(sns.color_palette()[:s_max])
+            markers.extend(['X']*s_max)
+            pl = sns.pairplot(df, hue='hue', diag_kind='kde',
+                              palette=palette, 
+                              markers=markers)
+        for ax in pl.axes.flatten():
+            xlab = ax.get_xlabel()
+            if len(xlab)==0: continue
+            ax.set_xlim(lims_by_col[xlab])
+            ylab = ax.get_ylabel()
+            if len(ylab)==0: continue
+            ax.set_ylim(lims_by_col[ylab])
+        return pl
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
         """
         Autoselect solutions based on method.
+        'select' is 0 by default, and +1 for each new selection
 
         Parameters
         ----------
@@ -169,9 +235,12 @@ class OstPostProc:
         ofs : list
             objective function columns in fs ans ns
         of_weights : list
-            objective function weigts
+            objective function weights
         reselect : boolean
-            should solutions be reselected
+            should solutions be reselected (i.e. former selection overwritten), 
+            or added to former selection (can e.g. be used with to get 
+            "different balanced soltuions", where the different OF groups are 
+            weighted differently)
 
         """
         ns = self.ns
@@ -181,9 +250,19 @@ class OstPostProc:
             ns['select'] = 0
             fs['select'] = 0
 
-        # define default all wsse_cols if none are specified and equal weight
+        # which selection marker are we at?
+        marker = int(ns['select'].max() + 1)
+
+        # define default all ofs if none are specified and equal weight
         if ofs is None:
-            ofs = [col for col in fs.columns if ('WSSE' in col) or ('GCOP' in col)]
+            ofs = self.ofs.copy()
+            """We are usually not interested in including WSSEs of groups that 
+            always have value 0 - often used to keep track of things"""
+            for of in ofs:
+                if self.fs[of].max() == 0:
+                    print(f'Warning: Not including {of} as all solutions have value 0')
+                    ofs.remove(of)
+        if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
 
         # selecting solutions
@@ -192,26 +271,26 @@ class OstPostProc:
             for i, row in ns.iterrows():
                 mask = [fs[col] == row[col] for col in ofs]
                 mask1 = np.column_stack(mask).all(axis=1)
-                fs.loc[mask1, 'select'] = 1
+                fs.loc[mask1, 'select'] = marker
+                # also add marker to ns
+                ns.loc[i, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
-            # create some useful colummns?!?
+            # scaling to range of pareto front solutions
             for of in ofs:
-                ns[of+'_sc'] = ns[of] / fs[of].min()
+                of_min = ns[of].min()
+                of_range = ns[of].max() - ns[of].min()
+                ns[of+'_sc'] = (ns[of] - of_min) / of_range
+                fs[of+'_sc'] = (fs[of] - of_min) / of_range
 
             # calculate combined weighted OF
-            ns['OFcomb'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
             # add marker to nondomsol
-            ns.loc[ns['OFcomb'].idxmin(), 'select'] = 1
+            ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
 
-            # ...and add marker to full solution
-            for i, row in fs.iterrows():
-                try:
-                    fs.loc[i, 'select'] = ns[(ns[ofs[0]] == row[ofs[0]]) &
-                                             (ns[ofs[1]] == row[ofs[1]])]['select'].values[0]
-                except IndexError:
-                    fs.loc[i, 'select'] = 0
         self.fs = fs
         self.ns = ns
 
@@ -325,22 +404,22 @@ class OstPostProc:
         modelsubdir = './best'  # name change from rundir to comply with ostrich names
         for i, r in enumerate(pars_out.columns):
             # define and create parallel folders
-            rund = modelsubdir+r.split('val')[1]+'\\'
+            rund = modelsubdir+r.split('val')[1]
             run_dirs.append(rund)
             if not os.path.exists(rund):
                 os.makedirs(rund)
             # copy all template files, extra files and extra folders
-            shutil.copy(self.root+ostin.configbas['ModelExecutable'],
-                        rund+ostin.configbas['ModelExecutable'])
+            shutil.copy(os.path.join(self.root, ostin.configbas['ModelExecutable']),
+                        os.path.join(rund, ostin.configbas['ModelExecutable']))
             for ef in ostin.extra_files:
-                shutil.copy(self.root+ef, rund+ef)
+                shutil.copy(os.path.join(self.root, ef), os.path.join(rund, ef))
             for ed in ostin.extra_dirs:
                 if not os.path.exists(rund+ed):
-                    shutil.copytree(self.root+ed, rund+ed)
+                    shutil.copytree(os.path.join(self.root, ed), os.path.join(rund, ed))
             for t, (tf, inf) in enumerate(zip(ostin.temp_files, ostin.in_files)):
-                shutil.copy(self.root+tf, rund+tf)
+                shutil.copy(os.path.join(self.root, tf), os.path.join(rund, tf))
                 # replacing placeholders in template files
-                with open(self.root+tf, 'r') as file:
+                with open(os.path.join(self.root, tf), 'r') as file:
                     filedata = file.read()
                 # search and replace for current set of parameters
                 for j in range(pars_out.shape[0]):  # loop over all parameters
@@ -348,7 +427,7 @@ class OstPostProc:
                     val = str(pars_out.iloc[j, i])
                     filedata = filedata.replace(parname, val)
                 # Write to the output file
-                with open(rund+inf, 'w') as file:
+                with open(os.path.join(rund, inf), 'w') as file:
                     file.write(filedata)
         # write runs and parameter value overviews
         pars_out.to_csv('OSTRICH_runs_pars.txt', sep='\t')
