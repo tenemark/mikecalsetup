@@ -106,12 +106,12 @@ class OstPostProc:
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
             ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
             # loading data
-            ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
-                             skipfooter=len(lines)-last_idx, engine='python')
+            ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, skipfooter=len(lines)-last_idx, 
+                             header=None, sep='\s+', engine='python')
             ns.columns = cols
             # loading data - ns_dev
-            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, 
-                                    skipfooter=len(lines)-idx, header=None, sep='\s+')
+            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, kipfooter=len(lines)-idx, 
+                                 sheader=None, sep='\s+', engine='python')
             ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
             ns_dev.columns = ['gen']+cols
             ns_dev.set_index('gen', drop=True, inplace=True)
