@@ -70,22 +70,21 @@ class OstPostProc:
         temp = [i for i, line in enumerate(lines)
                 if 'Non-Dominated Solutions\n' == line]
         done = 1 if len(temp) != 0 else 0
+        # line number of start of list of non-dominated solutions
+        lnof = [i for i, line in enumerate(lines)
+                if 'Ostrich Run Record\n' == line][0] + 1
 
         # loading last set of non-dominated solutions
         if done == 0:
             # line number of last set of non-dominated solutions
             lnol = [i for i, line in enumerate(lines)
                     if '\n' == line][-1]
-            # line number of start of list of non-dominated solutions
-            lnof = [i for i, line in enumerate(lines)
-                    if 'Ostrich Run Record\n' == line][0] + 1
             # column names
             idx = [i for i, line in enumerate(lines)
                    if 'Ostrich Run Record\n' == line][0]
             cols = lines[idx+1].split()
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
             ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
-
             # loading data - ns
             ns = pd.read_csv(self.out_fp, skiprows=lnol+1, header=None, sep='\s+')
             ns = ns[ns.columns.tolist()[1:-1]]
@@ -95,22 +94,28 @@ class OstPostProc:
             ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
             ns_dev.columns = ['gen']+cols
             ns_dev.set_index('gen', drop=True, inplace=True)
+
         elif done == 1:
             # starting index
             idx = temp[0]
             last_idx = [idx+i for i, line in enumerate(lines[idx:])
                         if '\n' == line][0]
-
             # columns
             cols = lines[idx+1].split()
             cols = [col for col in cols if ')' != col]
             cols = [c for c in cols if ('WSSE' in c) | ('GCOP' in c) | (c.find('__') > -1)]
             ofs = [c for c in cols if ('WSSE' in c) | ('GCOP' in c)]
-
             # loading data
             ns = pd.read_csv(self.out_fp, skiprows=temp[0]+2, header=None, sep='\s+',
                              skipfooter=len(lines)-last_idx, engine='python')
             ns.columns = cols
+            # loading data - ns_dev
+            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, 
+                                    skipfooter=len(lines)-idx, header=None, sep='\s+')
+            ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
+            ns_dev.columns = ['gen']+cols
+            ns_dev.set_index('gen', drop=True, inplace=True)
+
         return ns, ofs, ns_dev
 
     def read_ostmodel_files(self):
