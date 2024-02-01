@@ -18,6 +18,7 @@ import numpy as np
 import mikecalsetup.ost_file as ost_file
 import glob
 import seaborn as sns
+import matplotlib.pyplot as plt
 import shutil
 
 
@@ -110,8 +111,8 @@ class OstPostProc:
                              header=None, sep='\s+', engine='python')
             ns.columns = cols
             # loading data - ns_dev
-            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, kipfooter=len(lines)-idx, 
-                                 sheader=None, sep='\s+', engine='python')
+            ns_dev = pd.read_csv(self.out_fp, skiprows=lnof+1, skipfooter=len(lines)-idx, 
+                                 header=None, sep='\s+', engine='python')
             ns_dev = ns_dev[ns_dev.columns.tolist()[:-1]]
             ns_dev.columns = ['gen']+cols
             ns_dev.set_index('gen', drop=True, inplace=True)
@@ -184,10 +185,12 @@ class OstPostProc:
             ofs = self.ofs.copy()
             """We are usually not interested in plotting WSSEs of groups that 
             always have value 0 - often used to keep track of things"""
+            todrop = []
             for of in ofs:
                 if self.fs[of].max() == 0:
                     print(f'Warning: Not plotting {of} as all solutions have value 0')
-                    ofs.remove(of)
+                    todrop.append(of)
+            ofs = [of for of in ofs if of not in todrop]
         # to avoid large plot limits due to outliers
         lims_by_col = dict([[of, [0, self.fs[of].quantile(0.975)]] for of in ofs])
         # Creating the scatter matrix pairplot
@@ -206,15 +209,17 @@ class OstPostProc:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
-            # add multiple selected solutions separately
-            s_max = self.fs.select.max()
-            for s in range(1, s_max+1):
+            """Add multiple selected solutions separately. Note: If same 
+            solution was reselected, some consecutive numbers will disappear"""
+            s_all = list(self.fs.select.unique())
+            s_all.remove(0) #0 is default value for all non-selected solutions
+            for s in s_all:
                 ss = self.fs.loc[self.fs.select == s]
                 df = pd.concat([df, ss[ofs].assign(hue=f'Sel. solution {s}')],
                                 ignore_index=True)
             # extend color palette and list of markers
-            palette.extend(sns.color_palette()[:s_max])
-            markers.extend(['X']*s_max)
+            palette.extend(sns.color_palette()[:len(s_all)])
+            markers.extend(['X']*len(s_all))
             pl = sns.pairplot(df, hue='hue', diag_kind='kde',
                               palette=palette, 
                               markers=markers)
@@ -226,6 +231,58 @@ class OstPostProc:
             if len(ylab)==0: continue
             ax.set_ylim(lims_by_col[ylab])
         return pl
+    
+    def plot_pars_vs_OFcomb(self, sel=1):
+        """
+        Plot parameter values against objective function value. Individual 
+        scatterplot per parameter. Objective function value taken from 
+        "OFcomb" from autoselect_solutions(), i.e. a single aggregated value 
+        of the different OF groups
+
+        Parameters
+        ----------
+        sel : int, optional
+            Which selected solution to pick, calcuated in autoselect_solutions(). 
+            The default is 1, i.e. the first/only one.
+
+        Returns
+        -------
+        None.
+
+        """
+        # get list of all parameters
+        pars = list(self.ns.columns[self.ns.columns.str.startswith('__')])
+        # If OFcomb not yet calculated, do that with default settings?
+        of = f'OFcomb_{sel}'
+        if of not in self.fs.columns:
+            self.autoselect_solutions(method='weighing_ofs', reselect=False)
+        # determine selection marker
+        selis = self.fs.select.unique()
+        seli = min(i for i in selis if i >= sel)
+        # determine plot dimensions
+        if len(pars) < 10:
+            figsize=(9,9)
+        else:
+            figsize=(18,13)
+        nrow = int(np.ceil(np.sqrt(len(pars))))
+        ncol = int(np.ceil(len(pars)/nrow))
+        # plot
+        fig, axs = plt.subplots(nrow, ncol, figsize=figsize, sharey=True)
+        fig.suptitle(f'parameter values vs {of}')
+        axs[0,0].set_ylim([0, self.fs[of].quantile(0.95)])
+        for i, ax in enumerate(fig.axes):
+            if i<len(pars):
+                ax.set_title(pars[i])
+                if self.fs[pars[i]].abs().mean() < 1e-2:
+                    ax.set_xscale('log')
+                # all solutions
+                ax.plot(self.fs[pars[i]], self.fs[of], 'x', color='0.2', markersize=3, alpha=0.5)
+                # pareto front
+                ax.plot(self.ns[pars[i]], self.ns[of], 'x', color='tomato', markersize=3, alpha=0.5)
+                # selected solution
+                ax.plot(self.fs.loc[self.fs['select']==seli, pars[i]], self.fs.loc[self.fs['select']==seli, of], 
+                        'o', color='blue', markersize=5, fillstyle='none')
+        fig.tight_layout()
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
@@ -263,12 +320,26 @@ class OstPostProc:
             ofs = self.ofs.copy()
             """We are usually not interested in including WSSEs of groups that 
             always have value 0 - often used to keep track of things"""
+            todrop = []
             for of in ofs:
                 if self.fs[of].max() == 0:
                     print(f'Warning: Not including {of} as all solutions have value 0')
-                    ofs.remove(of)
+                    todrop.append(of)
+            ofs = [of for of in ofs if of not in todrop]
         if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
+            
+        """OFcomb will always be calculated; even if selection method is 
+        'pareto' - then it will be the equally weighted sum of all OFs"""
+        # scaling to range of pareto front solutions
+        for of in ofs:
+            of_min = ns[of].min()
+            of_range = ns[of].max() - ns[of].min()
+            ns[of+'_sc'] = (ns[of] - of_min) / of_range
+            fs[of+'_sc'] = (fs[of] - of_min) / of_range
+        # calculate combined weighted OF
+        ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+        fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
         # selecting solutions
         if method == 'pareto':  # alternative 1
@@ -281,17 +352,6 @@ class OstPostProc:
                 ns.loc[i, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
-            # scaling to range of pareto front solutions
-            for of in ofs:
-                of_min = ns[of].min()
-                of_range = ns[of].max() - ns[of].min()
-                ns[of+'_sc'] = (ns[of] - of_min) / of_range
-                fs[of+'_sc'] = (fs[of] - of_min) / of_range
-
-            # calculate combined weighted OF
-            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-
             # add marker to nondomsol
             ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
@@ -442,7 +502,6 @@ class OstPostProc:
 """
 Still missing in class:
     Calculations sections (KGE, pareto etc.)
-    Parameter plotted against objective function
     S_out
     Only loading ostin once
 
