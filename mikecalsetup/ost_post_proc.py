@@ -184,10 +184,12 @@ class OstPostProc:
             ofs = self.ofs.copy()
             """We are usually not interested in plotting WSSEs of groups that 
             always have value 0 - often used to keep track of things"""
+            todrop = []
             for of in ofs:
                 if self.fs[of].max() == 0:
                     print(f'Warning: Not plotting {of} as all solutions have value 0')
-                    ofs.remove(of)
+                    todrop.append(of)
+            ofs = [of for of in ofs if of not in todrop]
         # to avoid large plot limits due to outliers
         lims_by_col = dict([[of, [0, self.fs[of].quantile(0.975)]] for of in ofs])
         # Creating the scatter matrix pairplot
