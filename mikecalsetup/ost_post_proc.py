@@ -208,15 +208,17 @@ class OstPostProc:
             df = pd.concat([self.fs[ofs].assign(hue='All solutions'),
                             self.ns[ofs].assign(hue='Non-dom solutions')],
                             ignore_index=True)
-            # add multiple selected solutions separately
-            s_max = self.fs.select.max()
-            for s in range(1, s_max+1):
+            """Add multiple selected solutions separately. Note: If same 
+            solution was reselected, some consecutive numbers will disappear"""
+            s_all = list(self.fs.select.unique())
+            s_all.remove(0) #0 is default value for all non-selected solutions
+            for s in s_all:
                 ss = self.fs.loc[self.fs.select == s]
                 df = pd.concat([df, ss[ofs].assign(hue=f'Sel. solution {s}')],
                                 ignore_index=True)
             # extend color palette and list of markers
-            palette.extend(sns.color_palette()[:s_max])
-            markers.extend(['X']*s_max)
+            palette.extend(sns.color_palette()[:len(s_all)])
+            markers.extend(['X']*len(s_all))
             pl = sns.pairplot(df, hue='hue', diag_kind='kde',
                               palette=palette, 
                               markers=markers)
