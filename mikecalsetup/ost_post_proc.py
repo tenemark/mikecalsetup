@@ -265,10 +265,12 @@ class OstPostProc:
             ofs = self.ofs.copy()
             """We are usually not interested in including WSSEs of groups that 
             always have value 0 - often used to keep track of things"""
+            todrop = []
             for of in ofs:
                 if self.fs[of].max() == 0:
                     print(f'Warning: Not including {of} as all solutions have value 0')
-                    ofs.remove(of)
+                    todrop.append(of)
+            ofs = [of for of in ofs if of not in todrop]
         if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
 
