@@ -18,6 +18,7 @@ import numpy as np
 import mikecalsetup.ost_file as ost_file
 import glob
 import seaborn as sns
+import matplotlib.pyplot as plt
 import shutil
 
 
@@ -230,6 +231,58 @@ class OstPostProc:
             if len(ylab)==0: continue
             ax.set_ylim(lims_by_col[ylab])
         return pl
+    
+    def plot_pars_vs_OFcomb(self, sel=1):
+        """
+        Plot parameter values against objective function value. Individual 
+        scatterplot per parameter. Objective function value taken from 
+        "OFcomb" from autoselect_solutions(), i.e. a single aggregated value 
+        of the different OF groups
+
+        Parameters
+        ----------
+        sel : int, optional
+            Which selected solution to pick, calcuated in autoselect_solutions(). 
+            The default is 1, i.e. the first/only one.
+
+        Returns
+        -------
+        None.
+
+        """
+        # get list of all parameters
+        pars = list(self.ns.columns[self.ns.columns.str.startswith('__')])
+        # If OFcomb not yet calculated, do that with default settings?
+        of = f'OFcomb_{sel}'
+        if of not in self.fs.columns:
+            self.autoselect_solutions(method='weighing_ofs', reselect=False)
+        # determine selection marker
+        selis = self.fs.select.unique()
+        seli = min(i for i in selis if i >= sel)
+        # determine plot dimensions
+        if len(pars) < 10:
+            figsize=(9,9)
+        else:
+            figsize=(18,13)
+        nrow = int(np.ceil(np.sqrt(len(pars))))
+        ncol = int(np.ceil(len(pars)/nrow))
+        # plot
+        fig, axs = plt.subplots(nrow, ncol, figsize=figsize, sharey=True)
+        fig.suptitle(f'parameter values vs {of}')
+        axs[0,0].set_ylim([0, self.fs[of].quantile(0.95)])
+        for i, ax in enumerate(fig.axes):
+            if i<len(pars):
+                ax.set_title(pars[i])
+                if self.fs[pars[i]].abs().mean() < 1e-2:
+                    ax.set_xscale('log')
+                # all solutions
+                ax.plot(self.fs[pars[i]], self.fs[of], 'x', color='0.2', markersize=3, alpha=0.5)
+                # pareto front
+                ax.plot(self.ns[pars[i]], self.ns[of], 'x', color='tomato', markersize=3, alpha=0.5)
+                # selected solution
+                ax.plot(self.fs.loc[self.fs['select']==seli, pars[i]], self.fs.loc[self.fs['select']==seli, of], 
+                        'o', color='blue', markersize=5, fillstyle='none')
+        fig.tight_layout()
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
@@ -275,6 +328,18 @@ class OstPostProc:
             ofs = [of for of in ofs if of not in todrop]
         if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
+            
+        """OFcomb will always be calculated; even if selection method is 
+        'pareto' - then it will be the equally weighted sum of all OFs"""
+        # scaling to range of pareto front solutions
+        for of in ofs:
+            of_min = ns[of].min()
+            of_range = ns[of].max() - ns[of].min()
+            ns[of+'_sc'] = (ns[of] - of_min) / of_range
+            fs[of+'_sc'] = (fs[of] - of_min) / of_range
+        # calculate combined weighted OF
+        ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+        fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
         # selecting solutions
         if method == 'pareto':  # alternative 1
@@ -287,17 +352,6 @@ class OstPostProc:
                 ns.loc[i, 'select'] = marker
 
         elif method == 'weighing_ofs':  # alternative 2
-            # scaling to range of pareto front solutions
-            for of in ofs:
-                of_min = ns[of].min()
-                of_range = ns[of].max() - ns[of].min()
-                ns[of+'_sc'] = (ns[of] - of_min) / of_range
-                fs[of+'_sc'] = (fs[of] - of_min) / of_range
-
-            # calculate combined weighted OF
-            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-
             # add marker to nondomsol
             ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
@@ -448,7 +502,6 @@ class OstPostProc:
 """
 Still missing in class:
     Calculations sections (KGE, pareto etc.)
-    Parameter plotted against objective function
     S_out
     Only loading ostin once
 
