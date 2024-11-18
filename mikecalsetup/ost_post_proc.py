@@ -253,9 +253,12 @@ class OstPostProc:
         # get list of all parameters
         pars = list(self.ns.columns[self.ns.columns.str.startswith('__')])
         # If OFcomb not yet calculated, do that with default settings?
+        if self.fs.columns.str.startswith('OFcomb_').sum() == 0:
+            self.autoselect_solutions(method='weighing_ofs', reselect=True)
+        if f'OFcomb_{sel}' not in self.fs.columns:
+            print(f'Warning: Selected solution {sel} does not exist; falling back to 1.')
+            sel = 1
         of = f'OFcomb_{sel}'
-        if of not in self.fs.columns:
-            self.autoselect_solutions(method='weighing_ofs', reselect=False)
         # determine selection marker
         selis = self.fs.select.unique()
         seli = min(i for i in selis if i >= sel)
@@ -355,6 +358,8 @@ class OstPostProc:
             # add marker to nondomsol
             ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+        else:
+            print(f"Warning: method {method} unknown option. Has to be one of ['pareto', 'weighing_ofs']")
 
         self.fs = fs
         self.ns = ns
