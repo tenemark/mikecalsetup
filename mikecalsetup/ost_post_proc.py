@@ -309,10 +309,12 @@ class OstPostProc:
 
         """
         ns = self.ns
+        ns_dev = self.ns_dev
         fs = self.fs
         # reset selection if reselect is True
         if reselect is True:
             ns['select'] = 0
+            ns_dev['select'] = 0
             fs['select'] = 0
 
         # which selection marker are we at?
@@ -339,9 +341,11 @@ class OstPostProc:
             of_min = ns[of].min()
             of_range = ns[of].max() - ns[of].min()
             ns[of+'_sc'] = (ns[of] - of_min) / of_range
+            ns_dev[of+'_sc'] = (ns_dev[of] - of_min) / of_range
             fs[of+'_sc'] = (fs[of] - of_min) / of_range
         # calculate combined weighted OF
         ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+        ns_dev[f'OFcomb_{marker}'] = ((ns_dev.loc[:, ns_dev.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
         fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
 
         # selecting solutions
@@ -357,12 +361,14 @@ class OstPostProc:
         elif method == 'weighing_ofs':  # alternative 2
             # add marker to nondomsol
             ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            ns_dev.loc[ns_dev[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
         else:
             print(f"Warning: method {method} unknown option. Has to be one of ['pareto', 'weighing_ofs']")
 
-        self.fs = fs
         self.ns = ns
+        self.ns_dev = ns_dev
+        self.fs = fs
 
     def ready_pars_for_runs(self, run_ini):
         """
