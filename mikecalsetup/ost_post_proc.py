@@ -313,7 +313,7 @@ class OstPostProc:
         ns_dev = self.ns_dev
         fs = self.fs
         # reset selection if reselect is True
-        if reselect is True:
+        if (reselect is True) | ('select' not in ns.columns):
             ns['select'] = 0
             ns_dev['select'] = 0
             fs['select'] = 0
