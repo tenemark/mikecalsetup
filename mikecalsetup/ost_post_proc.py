@@ -286,6 +286,7 @@ class OstPostProc:
                 ax.plot(self.fs.loc[self.fs['select']==seli, pars[i]], self.fs.loc[self.fs['select']==seli, of], 
                         'o', color='blue', markersize=5, fillstyle='none')
         fig.tight_layout()
+        return fig
 
     def autoselect_solutions(self, method='pareto', ofs=None, of_weights=None,
                              reselect=True):
