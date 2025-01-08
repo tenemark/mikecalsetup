@@ -254,7 +254,7 @@ class OstPostProc:
         pars = list(self.ns.columns[self.ns.columns.str.startswith('__')])
         # If OFcomb not yet calculated, do that with default settings?
         if self.fs.columns.str.startswith('OFcomb_').sum() == 0:
-            self.autoselect_solutions(method='weighing_ofs', reselect=True)
+            self.autoselect_solutions(method='ofs_1', reselect=True)
         if f'OFcomb_{sel}' not in self.fs.columns:
             print(f'Warning: Selected solution {sel} does not exist; falling back to 1.')
             sel = 1
@@ -297,7 +297,7 @@ class OstPostProc:
         Parameters
         ----------
         method : string
-            choose either pareto or weighing_ofs
+            choose either 'pareto' or 'ofs_range' or 'ofs_1'
         ofs : list
             objective function columns in fs ans ns
         of_weights : list
@@ -335,22 +335,8 @@ class OstPostProc:
         if of_weights is None:
             of_weights = [1/len(ofs) for i in range(len(ofs))]
             
-        """OFcomb will always be calculated; even if selection method is 
-        'pareto' - then it will be the equally weighted sum of all OFs"""
-        # scaling to range of pareto front solutions
-        for of in ofs:
-            of_min = ns[of].min()
-            of_range = ns[of].max() - ns[of].min()
-            ns[of+'_sc'] = (ns[of] - of_min) / of_range
-            ns_dev[of+'_sc'] = (ns_dev[of] - of_min) / of_range
-            fs[of+'_sc'] = (fs[of] - of_min) / of_range
-        # calculate combined weighted OF
-        ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-        ns_dev[f'OFcomb_{marker}'] = ((ns_dev.loc[:, ns_dev.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-        fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
-
         # selecting solutions
-        if method == 'pareto':  # alternative 1
+        if method == 'pareto':  # alternative 1: select all pareto-front solutions
             # add pareto front marker to full solution
             for i, row in ns.iterrows():
                 mask = [fs[col] == row[col] for col in ofs]
@@ -358,14 +344,55 @@ class OstPostProc:
                 fs.loc[mask1, 'select'] = marker
                 # also add marker to ns
                 ns.loc[i, 'select'] = marker
-
-        elif method == 'weighing_ofs':  # alternative 2
+            """OFcomb will always be calculated; even if selection method is 
+            'pareto' - then it will be the equally weighted sum of all OFs with 
+            'ofs_1' scaling"""
+            # scaling to range of pareto front solutions
+            for of in ofs:
+                of_min = ns[of].min()
+                ns[of+'_sc'] = ns[of] / of_min
+                ns_dev[of+'_sc'] = ns_dev[of] / of_min
+                fs[of+'_sc'] = fs[of] / of_min
+            # calculate combined weighted OF
+            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns_dev[f'OFcomb_{marker}'] = ((ns_dev.loc[:, ns_dev.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+        
+        elif method == 'ofs_1':  # alternative 2: Use provided weights, and scale to best individual OF value each (=1)
+            # scaling to range of pareto front solutions
+            for of in ofs:
+                of_min = ns[of].min()
+                ns[of+'_sc'] = ns[of] / of_min
+                ns_dev[of+'_sc'] = ns_dev[of] / of_min
+                fs[of+'_sc'] = fs[of] / of_min
+            # calculate combined weighted OF
+            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns_dev[f'OFcomb_{marker}'] = ((ns_dev.loc[:, ns_dev.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
             # add marker to nondomsol
             ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             ns_dev.loc[ns_dev[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
             fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+
+        elif method == 'ofs_range':  # alternative 3: Use provided weights, and scale to deviation from best individual OF value each relative to OF range across pareto-front solutions
+            # scaling to range of pareto front solutions
+            for of in ofs:
+                of_min = ns[of].min()
+                of_range = ns[of].max() - ns[of].min()
+                ns[of+'_sc'] = (ns[of] - of_min) / of_range
+                ns_dev[of+'_sc'] = (ns_dev[of] - of_min) / of_range
+                fs[of+'_sc'] = (fs[of] - of_min) / of_range
+            # calculate combined weighted OF
+            ns[f'OFcomb_{marker}'] = ((ns.loc[:, ns.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            ns_dev[f'OFcomb_{marker}'] = ((ns_dev.loc[:, ns_dev.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            fs[f'OFcomb_{marker}'] = ((fs.loc[:, fs.columns.str.endswith('_sc')]).mul(of_weights)).sum(axis=1) / np.sum(of_weights)
+            # add marker to nondomsol
+            ns.loc[ns[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            ns_dev.loc[ns_dev[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            fs.loc[fs[f'OFcomb_{marker}'].idxmin(), 'select'] = marker
+            
         else:
-            print(f"Warning: method {method} unknown option. Has to be one of ['pareto', 'weighing_ofs']")
+            print(f"Warning: method {method} unknown option. Has to be one of ['pareto', 'ofs_range', 'ofs_1']")
 
         self.ns = ns
         self.ns_dev = ns_dev
