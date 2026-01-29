@@ -1472,12 +1472,13 @@ class Setup:
 
         self.pth = pth.replace("/", '\\')
         self.par_from = par_from
-        all_df = table_from_file(os.path.join(pth, mod_nme) + '.she')
-        self.result_ff = get_result_folder(all_df, self.pth, self.mod_nme)
+        all_df_ = table_from_file(os.path.join(pth, mod_nme) + '.she')
+        
+        self.result_ff = get_result_folder(all_df_, self.pth, self.mod_nme)
         # get depedning directories
-        self.get_extra_dir_files(all_df)
+        self.get_extra_dir_files(all_df_)
         # remove rows where data used == 0
-        all_df = remove_unused_data(all_df)
+        all_df = remove_unused_data(all_df_)
         self.all_df = all_df
         # Class variables? Header 0 in Mike she file to parse into sections
         h0_useless = ['FlowModelDocVersion', 'ViewSettings', 'Overlays',
@@ -1497,8 +1498,11 @@ class Setup:
 
         proc_active = {}  # active processes in the simulation
         for proc in ['ET', 'OL', 'SZ', 'UZ', 'River']:
-            proc_active[proc] = bool(
-                spec.loc[spec['name'] == proc, 'value'].iloc[0])
+            try:
+                proc_active[proc] = bool(
+                    spec.loc[spec['name'] == proc, 'value'].iloc[0])
+            except IndexError:  # River does not exist in 2025 version
+                proc_active[proc] = False
         self.proc_active = proc_active
 
         # parameters ---------------------------------------------------------
@@ -1518,7 +1522,7 @@ class Setup:
         self.files = files
 
         # observations -------------------------------------------------------
-        resultsIni = all_df.loc[all_df['header0'].isin(h0_results)].copy()
+        resultsIni = all_df_.loc[all_df_['header0'].isin(h0_results)].copy()
         self.results = self.extract_obs_vs_sim(resultsIni)
 
     def get_extra_dir_files(self, all_df):
